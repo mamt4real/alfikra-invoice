@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import '../css/Invoice.css'
 import arrowRight from '../assets/icon-arrow-right.svg'
-import { formatdate } from '../reducer'
+import { formatdate, formatMoney } from '../reducer'
 
 function Invoice({ invoice }) {
   return (
@@ -14,7 +14,7 @@ function Invoice({ invoice }) {
       </div>
 
       <div className='right flex'>
-        <span className='price'>${invoice.invoiceTotal}</span>
+        <span className='price'>{formatMoney(invoice.invoiceTotal)}</span>
         <div
           className={`status-button flex ${invoice.invoicePaid ? 'paid' : ''} ${
             invoice.invoicePending ? 'pending' : ''

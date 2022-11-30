@@ -4,7 +4,7 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  onAuthStateChanged as userChanged,
+  // onAuthStateChanged as userChanged,
   // sendEmailVerification,
   signOut,
 } from 'firebase/auth'
@@ -17,20 +17,23 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  // setDoc,
 } from 'firebase/firestore/lite'
 import { uid } from 'uid'
-import devData from '../devdata/data'
+import devData, { users } from '../devdata/data'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
+// Import the functions you need from the SDKs you need
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: 'AIzaSyAkpN5BimXYQRPL9Hhvq9opiZgWXyCVhq0',
-  authDomain: 'invoice-f0723.firebaseapp.com',
-  projectId: 'invoice-f0723',
-  storageBucket: 'invoice-f0723.appspot.com',
-  messagingSenderId: '519892714285',
-  appId: '1:519892714285:web:8d83cfacfc6910402fc9a4',
+  apiKey: 'AIzaSyBix4GzK8CO32eopHyjnosCM-DRrAzAG5U',
+  authDomain: 'alfikra-invoice.firebaseapp.com',
+  projectId: 'alfikra-invoice',
+  storageBucket: 'alfikra-invoice.appspot.com',
+  messagingSenderId: '662471360909',
+  appId: '1:662471360909:web:9baa067776c1b42b90bdc4',
 }
 
 // Initialize Firebase
@@ -49,8 +52,8 @@ const getAll = async (colname) => {
   const invoices = []
   docsSnapshot.forEach((doc) =>
     invoices.push({
-      id: doc.id,
       ...doc.data(),
+      id: doc.id,
     })
   )
   return invoices
@@ -66,28 +69,28 @@ const getOne = async (colname, id) => {
 }
 
 const createOne = async (colname, data) => {
-  const id = uid()
-
   if (devEnv) {
-    return devData.push({ ...data, id })
+    return devData.push({ ...data, id: uid() })
   }
-  const docRef = doc(db, colname, id)
-  const newDocRef = await addDoc(docRef, data)
+  const colRef = collection(db, colname)
+  const newDocRef = await addDoc(colRef, data)
   const newDoc = await getDoc(newDocRef)
-  return newDoc
+  return { ...newDoc.data(), id: newDoc.id }
 }
 
-const updateOne = async (colname, id, data) => {
+const updateOne = async (colname, data) => {
   if (devEnv) {
-    const index = devData.findIndex((x) => x.id === id)
+    const index = devData.findIndex((x) => x.id === data.id)
     if (index > -1) {
       devData[index] = { ...devData[index], ...data }
       return devData[index]
     }
     return
   }
-  const docRef = doc(db, colname, id)
+  const docRef = doc(db, colname, data.id)
   await updateDoc(docRef, data, { merge: true })
+  const updated = await getDoc(docRef)
+  return updated
 }
 
 const deleteOne = async (colname, id) => {
@@ -101,6 +104,17 @@ const deleteOne = async (colname, id) => {
 }
 
 const createUser = async (email, password, name, role) => {
+  if (devEnv) {
+    const newUser = {
+      id: uid(),
+      email,
+      name,
+      password,
+      role,
+    }
+    users.push(newUser)
+    return [newUser, 'User Created Successfully']
+  }
   try {
     const userCredentials = await createUserWithEmailAndPassword(
       auth,
@@ -127,6 +141,13 @@ const createUser = async (email, password, name, role) => {
   }
 }
 
+/**
+ * Login a user
+ * @param {String} email
+ * @param {String} password
+ * @returns {User} signed in user
+ */
+
 const signIn = async (email, password) => {
   try {
     const userCredentials = await signInWithEmailAndPassword(
@@ -134,24 +155,40 @@ const signIn = async (email, password) => {
       email,
       password
     )
+    console.log(userCredentials)
     if (userCredentials) {
       const authUser = userCredentials.user
-      const user = await getDoc(doc(db, 'users', authUser.uid))
-      return [user, 'Login Successfully']
+      console.log(authUser.uid)
+      const userSnapshot = await getDoc(doc(db, 'users', authUser.uid))
+      console.log(userSnapshot.data())
+
+      return [
+        { id: userSnapshot.id, ...userSnapshot.data() },
+        'Login Successfully',
+      ]
     } else {
       return [null, 'Something went wrong!']
     }
   } catch (err) {
+    alert(err.code)
     return [null, `${err.code}: ${err.message}`]
   }
 }
 
+const logOut = async () => {
+  await signOut(auth)
+}
+
 const exports = {
+  devEnv,
   createOne,
   getAll,
   getOne,
   deleteOne,
   updateOne,
+  signIn,
+  logOut,
+  createUser,
 }
 
 export default exports

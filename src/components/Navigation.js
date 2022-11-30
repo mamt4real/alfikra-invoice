@@ -13,6 +13,7 @@ import {
 } from '@mui/icons-material'
 import { IconButton, Tooltip } from '@mui/material'
 import { useStateValue } from '../StateProvider'
+import db from '../firebase/firebaseInit'
 
 function Navigation({ showDialog }) {
   const [{ user }, dispatch] = useStateValue()
@@ -26,6 +27,7 @@ function Navigation({ showDialog }) {
       callback: () => {
         localStorage.setItem('user', null)
         dispatch({ type: 'SET_USER', data: null })
+        if (!db.devEnv) db.logOut().then(() => alert('Logout Successfully!'))
         navigate('/')
       },
     })

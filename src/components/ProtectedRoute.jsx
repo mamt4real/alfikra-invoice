@@ -4,8 +4,8 @@ import { Navigate } from 'react-router-dom'
 import { useStateValue } from '../StateProvider'
 
 function ProtectedRoute({ children, restrictedTo = [], redirect = '/' }) {
-  const loggedInUser = JSON.parse(localStorage.getItem('user'))
   const [{ user }, dispatch] = useStateValue()
+  const loggedInUser = JSON.parse(localStorage.getItem('user'))
 
   useEffect(() => {
     if (!user && loggedInUser) {

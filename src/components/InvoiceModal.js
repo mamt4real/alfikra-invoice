@@ -5,9 +5,9 @@ import '../css/InvoiceModal.css'
 import db from '../firebase/firebaseInit'
 import { useStateValue } from '../StateProvider'
 import Loading from './Loading'
-import { uid } from 'uid'
 // import { formatdate } from '../reducer'
 import { engines } from '../devdata/data'
+import { formatMoney } from '../reducer'
 
 const emptyInvoice = {
   clientName: '',
@@ -22,7 +22,7 @@ const emptyInvoice = {
   invoicePending: '',
   invoiceDraft: '',
   invoicePaid: '',
-  invoiceItemList: [],
+  invoiceItemList: [{ itemName: '', engineNo: '', qty: 0, price: 0, total: 0 }],
   invoiceTotal: 0,
   printed: false,
   userID: null,
@@ -43,7 +43,7 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
     setInvoice(newInvoice)
   }
   const addNewItem = () => {
-    const emptyItem = { itemName: '', qty: 0, price: 0, total: 0 }
+    const emptyItem = { itemName: '', qty: 1, price: 0, total: 0 }
     setInvoice({
       ...invoice,
       invoiceItemList: [...invoice.invoiceItemList, emptyItem],
@@ -54,11 +54,20 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
     const newInvoice = { ...invoice }
     newInvoice.invoiceItemList[index][name] = value
 
-    if (name === 'price')
+    if (name === 'itemName') {
+      const engine = engines.find((e) => e.name === value)
+      if (engine) newInvoice.invoiceItemList[index]['price'] = engine.basePrice
+    }
+
+    if (['price', 'qty', 'itemName'].includes(name)) {
+      const { qty, price } = newInvoice.invoiceItemList[index]
+      newInvoice.invoiceItemList[index]['total'] = qty * price
       newInvoice.invoiceTotal = newInvoice.invoiceItemList.reduce(
         (total, item) => total + item.qty * item.price,
         0
       )
+    }
+
     setInvoice(newInvoice)
     //do something
   }
@@ -77,12 +86,12 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
       return
     }
     setSubmitting(true)
-    const id = currentInvoice ? currentInvoice.id : uid()
+    // const id = currentInvoice ? currentInvoice.id : uid()
     // // const reference = db.doc(db.db, 'invoices', id)
     const fn = currentInvoice ? db.updateOne : db.createOne
-    const newInvoice = { ...invoice, id, userID: user.id }
+    const newInvoice = { ...invoice, userID: user.id }
     try {
-      await fn('invoices', id, newInvoice)
+      await fn('invoices', newInvoice)
       dispatch({
         type: `${currentInvoice ? 'UPDATE' : 'ADD'}_INVOICE`,
         data: newInvoice,
@@ -158,9 +167,11 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
               <thead>
                 <tr className='table-heading flex'>
                   <th className='item-name'>Item Name</th>
+                  <th className='price engineNo'>Item No</th>
                   <th className='qty'>Qty</th>
                   <th className='price'>Price</th>
                   <th className='total'>Total</th>
+                  <th className='qty delete'></th>
                 </tr>
               </thead>
               <tbody>
@@ -182,9 +193,17 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
                         ))}
                       </datalist>
                     </td>
-                    <td className='qty'>
+                    <td className='price engineNo'>
                       <input
                         type='text'
+                        name='engineNo'
+                        value={item.engineNo}
+                        onChange={(e) => handleItemChange(e, i)}
+                      />
+                    </td>
+                    <td className='qty'>
+                      <input
+                        type='number'
                         value={item.qty}
                         name={'qty'}
                         onChange={(e) => handleItemChange(e, i)}
@@ -192,18 +211,24 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
                     </td>
                     <td className='price'>
                       <input
-                        type='text'
+                        type='number'
                         value={item.price}
                         name={'price'}
                         onChange={(e) => handleItemChange(e, i)}
                       />
                     </td>
-                    <td className='total'>{item.qty * item.price}</td>
-                    <img
-                      src={deleteIcon}
-                      onClick={() => handleDeleteItem(i)}
-                      alt=''
-                    />
+                    <td className='total'>
+                      {formatMoney(item.qty * item.price)}
+                    </td>
+                    <td className='qty delete'>
+                      {!!i && (
+                        <img
+                          src={deleteIcon}
+                          onClick={() => handleDeleteItem(i)}
+                          alt=''
+                        />
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -230,13 +255,13 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
             </div>
           ) : (
             <div className='right flex'>
-              <button
+              {/* <button
                 className='dark-purple'
                 type='submit'
                 onClick={() => setInvoice({ ...invoice, invoiceDraft: true })}
               >
                 Save Draft
-              </button>
+              </button> */}
               <button
                 className='purple'
                 type='submit'

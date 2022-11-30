@@ -4,11 +4,13 @@ import { Email, Lock } from '@mui/icons-material'
 import { useStateValue } from '../StateProvider'
 import { users } from '../devdata/data'
 import { useNavigate } from 'react-router-dom'
+import db from '../firebase/firebaseInit'
 
 function LoginForm() {
   const [details, setDetails] = useState({ email: '', password: '' })
   const [message, setMessage] = useState('')
   const dispatch = useStateValue()[1]
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -16,21 +18,28 @@ function LoginForm() {
     setDetails({ ...details, [name]: value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     try {
-      const user = users.find(
-        (user) =>
-          user.email === details.email && user.password === details.password
-      )
+      let user
+      let message = 'Invalid Credentials!'
+      if (db.devEnv) {
+        user = users.find(
+          (user) =>
+            user.email === details.email && user.password === details.password
+        )
+      } else [user, message] = await db.signIn(details.email, details.password)
       if (user) {
         dispatch({ type: 'SET_USER', data: user })
         localStorage.setItem('user', JSON.stringify(user))
         navigate('/invoices')
       } else {
-        setMessage('Invalid Credentials')
+        setMessage(message)
       }
     } catch (error) {}
+
+    setLoading(false)
   }
 
   return (
@@ -63,7 +72,9 @@ function LoginForm() {
           onChange={handleChange}
         />
       </div>
-      <button className='button purple login_btn'>Login</button>
+      <button className='button purple login_btn' disabled={loading}>
+        {loading ? 'Signing In ...' : 'Login'}
+      </button>
       {/* <div className='input'>
       </div> */}
     </form>

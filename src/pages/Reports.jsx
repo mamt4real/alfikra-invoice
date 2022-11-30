@@ -96,6 +96,14 @@ function Reports() {
           </div>
           <div className='metric'>
             <Typography variant='title' className='key'>
+              Total Products Sold
+            </Typography>
+            <Typography variant='subtitle' className='money'>
+              {127}
+            </Typography>
+          </div>
+          <div className='metric'>
+            <Typography variant='title' className='key'>
               Most Sold Product
             </Typography>
             <Typography variant='subtitle' className='money'>

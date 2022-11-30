@@ -89,13 +89,13 @@
 }
 .work-items .item-list .table-items,
 .work-items .item-list .table-heading {
-  gap: 16px;
+  gap: 8px;
   font-size: 12px;
 }
 
 .item-list .table-items {
   position: relative;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 .item-list .table-heading {
   margin-bottom: 16px;
@@ -109,15 +109,29 @@
 .table-heading .item-name {
   flex-basis: 50%;
 }
+
+.table-items input {
+  padding-left: 3px;
+}
 .item-list .table-items .qty,
 .table-heading .qty {
   flex-basis: 10%;
   text-align: center;
 }
+.item-list .table-items .qty.delete,
+.table-heading .qty.delete {
+  display: flex;
+  align-items: center;
+  flex-basis: 8%;
+}
 .item-list .table-items .price,
 .table-heading .price {
   flex-basis: 20%;
   text-align: right;
+}
+.item-list .table-items .price.engineNo,
+.table-heading .price.engineNo {
+  text-align: left;
 }
 .item-list .table-items .total,
 .table-heading .total {
@@ -131,6 +145,7 @@
   width: 12px;
   height: 16px;
   margin: auto;
+  align-self: center;
   cursor: pointer;
 }
 

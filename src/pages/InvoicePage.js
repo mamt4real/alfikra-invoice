@@ -8,7 +8,7 @@ import {
 import '../css/InvoicePage.css'
 import { useStateValue } from '../StateProvider'
 import arrowLeft from '../assets/icon-arrow-left.svg'
-import { formatdate } from '../reducer'
+import { formatdate, formatMoney } from '../reducer'
 import db from '../firebase/firebaseInit'
 import Loading from '../components/Loading'
 
@@ -50,52 +50,53 @@ function InvoicePage() {
       subtitle: "This action can't be reversed!",
       callback: () =>
         effectDelete()
-          .then(() => navigate('/'))
+          .then(() => navigate('/invoices'))
           .catch((err) => alert(err.message)),
     })
   }
 
-  const updateStatus = (status) => {
-    const currentStatus = 'invoice' + status
-    const updatedStatus = {
-      invoicePending: null,
-      invoicePaid: null,
-      invoiceDraft: null,
-      [currentStatus]: true,
-    }
-    setSubmitting(true)
-    const effectChanges = async () => {
-      try {
-        // const docref = db.doc(db.db, 'invoices', currentInvoice.id)
-        // await db.updateDoc(
-        //   docref,
-        //   updatedStatus,
-        //   { merge: true }
-        // )
-        await db.updateOne('invoices', currentInvoice.id, updatedStatus)
-      } catch (error) {
-        console.log(error)
-        alert(error.message)
-      }
-    }
-    effectChanges()
-      .then((res) => {
-        dispatch({
-          type: 'UPDATE_INVOICE',
-          data: { ...currentInvoice, updatedStatus },
-        })
-        dispatch({
-          type: 'SET_CURRENT_INVOICE',
-          data: currentInvoice.id,
-        })
-        setSubmitting(false)
-      })
-      .catch((err) => {
-        alert(err.message)
-        setSubmitting(false)
-      })
-  }
-
+  const handlePrint = (e) => {}
+  // const updateStatus = (status) => {
+  //   const currentStatus = 'invoice' + status
+  //   const updatedStatus = {
+  //     invoicePending: null,
+  //     invoicePaid: null,
+  //     invoiceDraft: null,
+  //     [currentStatus]: true,
+  //   }
+  //   setSubmitting(true)
+  //   const effectChanges = async () => {
+  //     try {
+  //       // const docref = db.doc(db.db, 'invoices', currentInvoice.id)
+  //       // await db.updateDoc(
+  //       //   docref,
+  //       //   updatedStatus,
+  //       //   { merge: true }
+  //       // )
+  //       await db.updateOne('invoices', currentInvoice.id, updatedStatus)
+  //     } catch (error) {
+  //       console.log(error)
+  //       alert(error.message)
+  //     }
+  //   }
+  //   effectChanges()
+  //     .then((res) => {
+  //       dispatch({
+  //         type: 'UPDATE_INVOICE',
+  //         data: { ...currentInvoice, updatedStatus },
+  //       })
+  //       dispatch({
+  //         type: 'SET_CURRENT_INVOICE',
+  //         data: currentInvoice.id,
+  //       })
+  //       setSubmitting(false)
+  //     })
+  //     .catch((err) => {
+  //       alert(err.message)
+  //       setSubmitting(false)
+  //     })
+  // }
+  console.log(currentInvoice)
   return currentInvoice ? (
     <div className='invoicepage container'>
       <Link to={'/invoices'} className='nav-link'>
@@ -108,9 +109,13 @@ function InvoicePage() {
           <span>Status</span>
           <div
             className={`status-button flex ${
-              currentInvoice.invoicePaid ? 'paid' : ''
-            } ${currentInvoice.invoicePending ? 'pending' : ''} ${
-              currentInvoice.invoiceDraft ? 'draft' : ''
+              currentInvoice.invoicePaid
+                ? 'paid'
+                : currentInvoice.invoicePending
+                ? 'pending'
+                : currentInvoice.invoiceDraft
+                ? 'draft'
+                : ''
             }`}
           >
             <span>
@@ -123,19 +128,26 @@ function InvoicePage() {
           </div>
         </div>
         <div className='right flex'>
-          <button
-            className='dark-purple'
-            onClick={() => toggleInvoiceEdit(currentInvoice.id)}
-          >
-            Edit
+          {!currentInvoice.printed && (
+            <>
+              <button
+                className='orange'
+                onClick={() => toggleInvoiceEdit(currentInvoice.id)}
+              >
+                Edit
+              </button>
+              <button
+                className='red'
+                onClick={() => deleteInvoice(currentInvoice.id)}
+              >
+                Delete
+              </button>
+            </>
+          )}
+          <button className='green' onClick={handlePrint}>
+            Print
           </button>
-          <button
-            className='red'
-            onClick={() => deleteInvoice(currentInvoice.id)}
-          >
-            Delete
-          </button>
-          {currentInvoice.invoicePending ? (
+          {/* {currentInvoice.invoicePending ? (
             <button className='green' onClick={() => updateStatus('Paid')}>
               Mark as Paid
             </button>
@@ -149,7 +161,7 @@ function InvoicePage() {
                 Mark as Pending
               </button>
             )
-          )}
+          )} */}
         </div>
       </div>
 
@@ -166,10 +178,10 @@ function InvoicePage() {
           </div>
 
           <div className='right flex flex-column'>
-            <p>{currentInvoice.billerStreetAddress}</p>
-            <p>{currentInvoice.billerCity}</p>
-            <p>{currentInvoice.billerZipCode}</p>
-            <p>{currentInvoice.billerCountry}</p>
+            <p>Al-Fikra General Enterpises</p>
+            <p>No 23 New Jos Road</p>
+            <p>Zaria, Kaduna</p>
+            <p>Nigeria</p>
           </div>
         </div>
 
@@ -199,6 +211,7 @@ function InvoicePage() {
           <div className='billing-items'>
             <div className='heading flex'>
               <p>Item Name</p>
+              <p>Item No</p>
               <p>QTY</p>
               <p>Price</p>
               <p>Total</p>
@@ -206,15 +219,16 @@ function InvoicePage() {
             {currentInvoice.invoiceItemList?.map((item, i) => (
               <div className='item flex' key={i + 1}>
                 <p>{item.itemName}</p>
+                <p>{item.engineNo}</p>
                 <p>{item.qty}</p>
-                <p>{item.price}</p>
-                <p>{item.total}</p>
+                <p>{formatMoney(item.price)}</p>
+                <p>{formatMoney(item.total)}</p>
               </div>
             ))}
           </div>
           <div className='total flex'>
             <p>Amount Due</p>
-            <p>{currentInvoice.invoiceTotal}</p>
+            <p>{formatMoney(currentInvoice.invoiceTotal)}</p>
           </div>
         </div>
       </div>

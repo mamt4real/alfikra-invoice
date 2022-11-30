@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import '../css/LoginForm.css'
 import { Email, Lock, Person, Badge } from '@mui/icons-material'
 // import { useStateValue } from '../StateProvider'
-import { users } from '../devdata/data'
-import { uid } from 'uid'
+import db from '../firebase/firebaseInit'
 
 function UserForm({ user, close }) {
   const [details, setDetails] = useState(
@@ -14,7 +13,7 @@ function UserForm({ user, close }) {
       role: 'client',
     }
   )
-  // const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
   // const dispatch = useStateValue()[1]
 
   const handleChange = (e) => {
@@ -22,18 +21,30 @@ function UserForm({ user, close }) {
     setDetails({ ...details, [name]: value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     try {
       if (user) {
         // Edit
-        users[users.findIndex((u) => u.email === user.email)] = details
+        db.updateOne('users', details)
       } else {
         // Add
-        users.push({ ...details, id: uid() })
+        const [newUser, message] = await db.createUser(
+          ...Object.values(details)
+        )
+        if (newUser) {
+          alert(message)
+        } else {
+          throw new Error(message)
+        }
       }
+      setLoading(false)
       close()
-    } catch (error) {}
+    } catch (error) {
+      alert(error.message)
+      setLoading(false)
+    }
   }
 
   return (
@@ -107,7 +118,15 @@ function UserForm({ user, close }) {
         <button className='button orange' onClick={() => close()}>
           Cancel
         </button>
-        <button className='button purple'>Save</button>
+        <button disabled={loading} className='button purple'>
+          {loading
+            ? user
+              ? 'Saving...'
+              : 'Adding...'
+            : user
+            ? 'Save'
+            : 'Create'}
+        </button>
       </div>
     </form>
   )

@@ -19,15 +19,6 @@ function Invoices() {
   useEffect(() => {
     const loadInvoices = async () => {
       try {
-        // const docsRecf = db.collection(db.db, 'invoices')
-        // const docsSnapshot = await db.getDocs(docsRecf)
-        // const invoices = []
-        // docsSnapshot.forEach((doc) =>
-        //   invoices.push({
-        //     id: doc.id,
-        //     ...doc.data(),
-        //   })
-        // )
         dispatch({ type: 'SET_INVOICES', data: await db.getAll('invoices') })
         dispatch({ type: 'SET_INVOICES_LOADED', data: true })
         setDisplayed(invoices)
