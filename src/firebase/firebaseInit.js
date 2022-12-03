@@ -45,7 +45,14 @@ const devEnv = true
 
 const getAll = async (colname) => {
   if (devEnv) {
-    return devData
+    switch (colname) {
+      case 'invoices':
+        return devData
+      case 'users':
+        return users
+      default:
+        return []
+    }
   }
   const docsRef = collection(db, colname)
   const docsSnapshot = await getDocs(docsRef)
@@ -70,7 +77,9 @@ const getOne = async (colname, id) => {
 
 const createOne = async (colname, data) => {
   if (devEnv) {
-    return devData.push({ ...data, id: uid() })
+    const newDoc = { ...data, id: uid() }
+    // devData.push(newDoc)
+    return newDoc
   }
   const colRef = collection(db, colname)
   const newDocRef = await addDoc(colRef, data)

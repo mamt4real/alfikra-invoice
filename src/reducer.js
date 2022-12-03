@@ -56,7 +56,7 @@ export const reducer = (state, action) => {
         invoices: updateFunction(state.invoices, { id: action.data }, true),
       }
     case 'ADD_INVOICE':
-      state.invoices.push(action.data)
+      state.invoices.splice(0, 0, action.data)
       return state
 
     case 'SET_CURRENT_INVOICE':

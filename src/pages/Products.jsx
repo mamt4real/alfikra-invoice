@@ -17,6 +17,7 @@ import Popup from '../components/Popup'
 import '../css/Users.css'
 import { useOutletContext } from 'react-router-dom'
 import EngineForm from '../components/EngineForm'
+import { formatMoney } from '../reducer'
 
 const headCells = [
   { id: 'name', label: 'Product Name' },
@@ -60,7 +61,11 @@ function Products() {
     let query = e.target.value
     setFilter({
       fn: (items) =>
-        query ? items.filter((item) => item.name.includes(query)) : items,
+        query
+          ? items.filter((item) =>
+              item.name?.toLowerCase().includes(query.toLowerCase())
+            )
+          : items,
     })
   }
   return (
@@ -86,7 +91,7 @@ function Products() {
           {recordsAfterPagination().map((e, i) => (
             <TableRow key={i + 1}>
               <TableCell>{e.name}</TableCell>
-              <TableCell>{e.basePrice}</TableCell>
+              <TableCell>{formatMoney(e.basePrice)}</TableCell>
               <TableCell>
                 <IconButton onClick={() => handleEdit(e)}>
                   <Tooltip title='Edit Engine'>

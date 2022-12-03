@@ -8,6 +8,7 @@ import Loading from './Loading'
 // import { formatdate } from '../reducer'
 import { engines } from '../devdata/data'
 import { formatMoney } from '../reducer'
+import { useNavigate } from 'react-router-dom'
 
 const emptyInvoice = {
   clientName: '',
@@ -29,6 +30,7 @@ const emptyInvoice = {
 }
 
 const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
+  const navigate = useNavigate()
   const [{ currentInvoice, user }, dispatch] = useStateValue()
   const [invoice, setInvoice] = useState(currentInvoice || emptyInvoice)
   const [submitting, setSubmitting] = useState(false)
@@ -89,18 +91,19 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
     // const id = currentInvoice ? currentInvoice.id : uid()
     // // const reference = db.doc(db.db, 'invoices', id)
     const fn = currentInvoice ? db.updateOne : db.createOne
-    const newInvoice = { ...invoice, userID: user.id }
     try {
-      await fn('invoices', newInvoice)
+      const newInvoice = await fn('invoices', { ...invoice, userID: user.id })
       dispatch({
         type: `${currentInvoice ? 'UPDATE' : 'ADD'}_INVOICE`,
         data: newInvoice,
       })
+      setSubmitting(false)
+      closeFunction()
+      navigate(`/invoices/${newInvoice.id}`)
     } catch (error) {
       alert(error.message)
+      setSubmitting(false)
     }
-    setSubmitting(false)
-    closeFunction()
   }
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -206,6 +209,7 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
                         type='number'
                         value={item.qty}
                         name={'qty'}
+                        min={1}
                         onChange={(e) => handleItemChange(e, i)}
                       />
                     </td>

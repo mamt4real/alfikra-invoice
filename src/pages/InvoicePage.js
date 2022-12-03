@@ -96,7 +96,6 @@ function InvoicePage() {
   //       setSubmitting(false)
   //     })
   // }
-  console.log(currentInvoice)
   return currentInvoice ? (
     <div className='invoicepage container'>
       <Link to={'/invoices'} className='nav-link'>

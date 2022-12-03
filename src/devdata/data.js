@@ -48,7 +48,11 @@ for (let i = 0; i < 15; i++)
     clientZipCode: 'zip code' + (i + 1),
     clientCountry: 'client country ' + (i + 1),
     invoiceDateUnix: '',
-    invoiceDate: new Date(),
+    invoiceDate: new Date(
+      2022,
+      Math.round(Math.random() * 12),
+      Math.round(Math.random() * 25)
+    ),
     paymentTerms: 'some terms',
     paymentDueDate: new Date(),
     paymentDueDateUnix: new Date(Date.now() + (i + 1) * 86400),
@@ -59,12 +63,12 @@ for (let i = 0; i < 15; i++)
     invoiceItemList: Array(i + 1)
       .fill()
       .map((_, i) => {
-        const price = Math.round(Math.random() * 10000) / 100
+        const engine = engines[Math.floor(Math.random() * engines.length)]
         return {
-          itemName: 'Item' + (i + 1),
+          itemName: engine.name,
           qty: i + 1,
-          price,
-          total: price * (i + 1),
+          price: engine.basePrice,
+          total: engine.basePrice * (i + 1),
         }
       }),
     invoiceTotal: 0,
