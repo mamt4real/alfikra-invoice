@@ -33,13 +33,16 @@ function LoginForm() {
       if (user) {
         dispatch({ type: 'SET_USER', data: user })
         localStorage.setItem('user', JSON.stringify(user))
+        setLoading(false)
         navigate('/invoices')
       } else {
         setMessage(message)
+        setLoading(false)
       }
-    } catch (error) {}
-
-    setLoading(false)
+    } catch (error) {
+      setLoading(false)
+      console.log(error)
+    }
   }
 
   return (

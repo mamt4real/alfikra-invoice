@@ -1,35 +1,38 @@
 import React, { useState } from 'react'
 import '../css/LoginForm.css'
 import { Engineering, Money } from '@mui/icons-material'
-// import { useStateValue } from '../StateProvider'
-import { engines } from '../devdata/data'
-import { uid } from 'uid'
+import db from '../firebase/firebaseInit'
+import { useStateValue } from '../StateProvider'
 
 function EngineForm({ engine, close }) {
   const [details, setDetails] = useState(
     engine || {
       name: '',
-      basePrice: '',
+      basePrice: 0,
     }
   )
-  // const [message, setMessage] = useState('')
-  // const dispatch = useStateValue()[1]
+  const [loading, setLoading] = useState(false)
+  const dispatch = useStateValue()[1]
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setDetails({ ...details, [name]: value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     try {
       if (engine) {
         // Edit
-        engines[engines.findIndex((u) => u.name === engine.name)] = details
+        const updatedE = await db.updateOne('engines', details)
+        dispatch({ type: 'UPDATE_ENGINE', data: updatedE })
       } else {
         // Add
-        engines.push({ ...details, id: uid() })
+        const newE = await db.createOne('engines', details)
+        dispatch({ type: 'ADD_ENGINE', data: newE })
       }
+      setLoading(false)
       close()
     } catch (error) {}
   }
@@ -61,7 +64,8 @@ function EngineForm({ engine, close }) {
           Base Price
         </label>
         <input
-          type='basePrice'
+          type='number'
+          min={100}
           id='basePrice'
           name='basePrice'
           value={details.basePrice}
@@ -73,7 +77,19 @@ function EngineForm({ engine, close }) {
         <button className='button orange' onClick={() => close()}>
           Cancel
         </button>
-        <button className='button purple'>Save</button>
+        <button
+          className='button purple'
+          type='submit'
+          disable={loading.toString()}
+        >
+          {loading
+            ? engine
+              ? 'Saving...'
+              : 'Adding...'
+            : engine
+            ? 'Save'
+            : 'Add'}
+        </button>
       </div>
     </form>
   )

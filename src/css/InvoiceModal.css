@@ -23,7 +23,7 @@
 }
 
 .invoice-content h1 {
-  margin-bottom: 48px;
+  margin-bottom: 24px;
   color: #fff;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .input {
-  margin-bottom: 24px;
+  margin-bottom: 10px;
 }
 .invoice-content input,
 .input label {
@@ -177,5 +177,11 @@
   }
   .invoice-wrap .invoice-content {
     padding: 56px;
+  }
+  .invoice-content h1 {
+    margin-bottom: 48px;
+  }
+  .input {
+    margin-bottom: 24px;
   }
 }

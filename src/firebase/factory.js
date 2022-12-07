@@ -11,6 +11,21 @@ const month = (dt) => {
   return dt.toLocaleString('default', { month: 'short' })
 }
 
+const sortedMonths = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]
+
 /**
  * Groups an Array of Objects by a value
  * @param {[Object]} data The data Array
@@ -40,7 +55,12 @@ export const transformInvoices = (invoices) => {
       transformed.push({
         id: inv.id + i,
         userID: inv.userID,
-        date: inv.invoiceDate,
+        date: inv.invoiceDate?.hasOwnProperty('seconds')
+          ? new Date(
+              inv.invoiceDate?.seconds * 1000 +
+                inv.invoiceDate?.nanoseconds / 1000000
+            )
+          : new Date(inv.invoiceDate),
         ...item,
       })
     })
@@ -56,20 +76,7 @@ export const userSales = (transformed) => {}
  */
 export const monthlySales = (transformed) => {
   const monthlyGroups = groupBy(transformed, (obj) => month(obj.date))
-  const sortedMonths = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ]
+
   const temp = []
   for (const month of sortedMonths) {
     const val = monthlyGroups.hasOwnProperty(month) ? monthlyGroups[month] : []
@@ -87,7 +94,21 @@ export const engineCount = (transformed) => {
   for (const [key, val] of Object.entries(engineGroups)) {
     temp.push({
       name: key,
-      value: val.length,
+      value: val.reduce((subquan, sale) => subquan + parseInt(sale.qty), 0),
+      amt: val.reduce((subtotal, sale) => subtotal + sale.total, 0),
+    })
+  }
+  return temp
+}
+
+export const salesByUser = (transformed, users) => {
+  const userGroups = groupBy(transformed, (obj) => obj.userID)
+  const temp = []
+  for (const [key, val] of Object.entries(userGroups)) {
+    temp.push({
+      userID: key,
+      amt: val.reduce((subtotal, sale) => subtotal + sale.total, 0),
+      name: users?.find((u) => u.id == key)?.name,
     })
   }
   return temp

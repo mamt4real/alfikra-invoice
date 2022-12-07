@@ -4,7 +4,10 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  // onAuthStateChanged as userChanged,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  onAuthStateChanged as userChanged,
   // sendEmailVerification,
   signOut,
 } from 'firebase/auth'
@@ -17,10 +20,13 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  query,
+  where,
+  orderBy,
   // setDoc,
 } from 'firebase/firestore/lite'
 import { uid } from 'uid'
-import devData, { users } from '../devdata/data'
+import devData, { engines, users } from '../devdata/data'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -50,6 +56,8 @@ const getAll = async (colname) => {
         return devData
       case 'users':
         return users
+      case 'engines':
+        return engines
       default:
         return []
     }
@@ -66,13 +74,92 @@ const getAll = async (colname) => {
   return invoices
 }
 
+/**
+ * Retrieve invoices within a given date range
+ * @param {String | Date} from start date
+ * @param {String | Date} to end date
+ * @returns {[Object]} list of Invoices
+ */
+
+const getDateRangedInvoices = async (from, to) => {
+  if (!(from instanceof Date)) from = new Date(from)
+  if (!(to instanceof Date)) to = new Date(to)
+
+  if (devEnv) {
+    return devData.filter(
+      (sale) =>
+        sale.invoiceDate.getTime() >= from.getTime() &&
+        sale.invoiceDate.getTime() <= to.getTime()
+    )
+  }
+
+  // reset Hours
+  from.setHours(0, 0, 0, 0)
+  to.setHours(23, 59, 59, 0)
+
+  const q = query(
+    collection(db, 'invoices'),
+    where('invoiceDate', '>=', from),
+    where('invoiceDate', '<=', to),
+    orderBy('invoiceDate', 'desc')
+    // orderBy('invoiceTotal', 'desc')
+  )
+  const docsSnapshot = await getDocs(q)
+  const invoices = []
+  docsSnapshot.forEach((doc) =>
+    invoices.push({
+      ...doc.data(),
+      id: doc.id,
+    })
+  )
+  return invoices
+}
+
+const getThisYearInvoices = async () => {
+  if (devEnv) return devData
+  const year = new Date().getFullYear()
+  const dayOne = `${year}-01-01`
+  const lastDay = `${year}-12-31`
+  return getDateRangedInvoices(dayOne, lastDay)
+}
+
+const getTodaysSales = async () => {
+  const d = new Date().toLocaleString('default', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+  const params = d.split('/').reverse()
+  const today = params.join('-')
+  params[2] = parseInt(params[2]) + 1
+  params[2] = params[2] > 9 ? params[2] : '0' + params[2]
+  const tomorrow = params.join('-')
+  // console.log(today, '>>>', tomorrow)
+  return getDateRangedInvoices(today, tomorrow)
+}
+
+const getInvoiceByPhone = async (phone) => {
+  if (devEnv) {
+  }
+  const q = query(collection(db, 'invoices'), where('clientPhone', '==', phone))
+  const docsSnapshot = await getDocs(q)
+  const invoices = []
+  docsSnapshot.forEach((doc) =>
+    invoices.push({
+      ...doc.data(),
+      id: doc.id,
+    })
+  )
+  return invoices
+}
+
 const getOne = async (colname, id) => {
   if (devEnv) {
     return devData.find((x) => x.id === id)
   }
   const docRef = doc(db, colname, id)
   const docSnapshot = await getDoc(docRef)
-  return { id: docSnapshot.id, ...docSnapshot.data }
+  return { ...docSnapshot.data(), id: docSnapshot.id }
 }
 
 const createOne = async (colname, data) => {
@@ -89,17 +176,28 @@ const createOne = async (colname, data) => {
 
 const updateOne = async (colname, data) => {
   if (devEnv) {
-    const index = devData.findIndex((x) => x.id === data.id)
+    let data
+    switch (colname) {
+      case 'invoices':
+        data = devData
+        break
+      case 'engines':
+        data = engines
+        break
+      default:
+        data = []
+    }
+    const index = data.findIndex((x) => x.id === data.id)
     if (index > -1) {
-      devData[index] = { ...devData[index], ...data }
-      return devData[index]
+      data[index] = { ...data[index], ...data }
+      return data[index]
     }
     return
   }
   const docRef = doc(db, colname, data.id)
   await updateDoc(docRef, data, { merge: true })
   const updated = await getDoc(docRef)
-  return updated
+  return { id: updated.id, ...updated.data() }
 }
 
 const deleteOne = async (colname, id) => {
@@ -164,22 +262,25 @@ const signIn = async (email, password) => {
       email,
       password
     )
-    console.log(userCredentials)
+    // console.log(userCredentials)
     if (userCredentials) {
       const authUser = userCredentials.user
-      console.log(authUser.uid)
+      // console.log(authUser.uid)
       const userSnapshot = await getDoc(doc(db, 'users', authUser.uid))
-      console.log(userSnapshot.data())
+      // console.log(userSnapshot.data())
 
       return [
-        { id: userSnapshot.id, ...userSnapshot.data() },
+        {
+          id: userSnapshot.id,
+          ...userSnapshot.data(),
+        },
         'Login Successfully',
       ]
     } else {
       return [null, 'Something went wrong!']
     }
   } catch (err) {
-    alert(err.code)
+    console.log(err.message)
     return [null, `${err.code}: ${err.message}`]
   }
 }
@@ -188,8 +289,35 @@ const logOut = async () => {
   await signOut(auth)
 }
 
+const updateUserPassword = async (oldpass, newPass, user) => {
+  if (devEnv) {
+    const current = users.find((u) => u.id === user.id)
+    if (current.password !== oldpass) return [null, 'Invalid Passsword']
+    current.password = newPass
+    return [current, 'Password Changed Successfully']
+  }
+  try {
+    const current = auth.currentUser
+    const creadential = EmailAuthProvider.credential(current.email, oldpass)
+    const userCredential = await reauthenticateWithCredential(
+      current,
+      creadential
+    )
+    if (!userCredential) {
+      return [null, 'Invalid Passwsord']
+    }
+    await updatePassword(current, newPass)
+    return [current, 'Password changed successfully']
+  } catch (error) {
+    console.log(error)
+    return [null, error.message?.split('auth/')[1].strip(')')]
+  }
+}
+
 const exports = {
   devEnv,
+  auth,
+  updateUserPassword,
   createOne,
   getAll,
   getOne,
@@ -198,6 +326,11 @@ const exports = {
   signIn,
   logOut,
   createUser,
+  getThisYearInvoices,
+  getTodaysSales,
+  getDateRangedInvoices,
+  getInvoiceByPhone,
+  userChanged,
 }
 
 export default exports

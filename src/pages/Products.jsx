@@ -6,7 +6,6 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material'
-import { engines } from '../devdata/data'
 import useTable from '../hooks/useTable'
 import {
   DeleteOutlineRounded,
@@ -18,6 +17,9 @@ import '../css/Users.css'
 import { useOutletContext } from 'react-router-dom'
 import EngineForm from '../components/EngineForm'
 import { formatMoney } from '../reducer'
+import { useStateValue } from '../StateProvider'
+import db from '../firebase/firebaseInit'
+import { useEffect } from 'react'
 
 const headCells = [
   { id: 'name', label: 'Product Name' },
@@ -29,13 +31,14 @@ function Products() {
   const [edited, setEdited] = useState(null)
   const [openPopup, setOpen] = useState(false)
   const [filter, setFilter] = useState({ fn: (items) => items })
+  const [{ engines }, dispatch] = useStateValue()
   const setShowModal = useOutletContext()[1]
   const { TableContainer, TblHead, TblPagination, recordsAfterPagination } =
     useTable(engines, headCells, filter)
 
   const handleDelete = (engine, index) => {
     const effectDelete = async () => {
-      engines.splice(index, 1)
+      await db.deleteOne('engines', engine.id)
     }
     setShowModal({
       open: true,
@@ -43,12 +46,12 @@ function Products() {
       subtitle: "This action can't be reversed!",
       callback: () =>
         effectDelete()
-          .then(() => {})
+          .then(() => dispatch({ type: 'DELETE_ENGINE', data: engine.id }))
           .catch((err) => alert(err.message)),
     })
   }
-  const handleEdit = (user) => {
-    setEdited(user)
+  const handleEdit = (engine) => {
+    setEdited(engine)
     setOpen(true)
   }
 

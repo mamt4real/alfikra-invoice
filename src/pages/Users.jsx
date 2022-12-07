@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   TableBody,
   TableCell,
@@ -6,7 +6,8 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material'
-import { users } from '../devdata/data'
+// import { users } from '../devdata/data'
+import db from '../firebase/firebaseInit'
 import useTable from '../hooks/useTable'
 import {
   DeleteOutlineRounded,
@@ -17,6 +18,8 @@ import Popup from '../components/Popup'
 import UserForm from '../components/UserForm'
 import '../css/Users.css'
 import { useOutletContext } from 'react-router-dom'
+import { useStateValue } from '../StateProvider'
+import Loading from '../components/Loading'
 
 const headCells = [
   { id: 'name', label: 'Name' },
@@ -28,22 +31,33 @@ const headCells = [
 function Users() {
   const [edited, setEdited] = useState(null)
   const [openPopup, setOpen] = useState(false)
+  const [{ staffs, user }, dispatch] = useStateValue()
   const [filter, setFilter] = useState({ fn: (items) => items })
   const setShowModal = useOutletContext()[1]
+  const [loading, setLoading] = useState(false)
   const { TableContainer, TblHead, TblPagination, recordsAfterPagination } =
-    useTable(users, headCells, filter)
+    useTable(staffs, headCells, filter)
 
-  const handleDelete = (user, index) => {
+  useEffect(() => {
+    if (staffs.length) return
+    setLoading(true)
+    db.getAll('users')
+      .then((data) => dispatch({ type: 'SET_STAFFS', data }))
+      .catch((err) => console.log(err))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const handleDelete = (staff) => {
     const effectDelete = async () => {
-      users.splice(index, 1)
+      await db.deleteOne('users', staff.id)
     }
     setShowModal({
       open: true,
-      title: `Are you sure you want to delete ${user.name}?`,
+      title: `Are you sure you want to delete ${staff.name}?`,
       subtitle: "This action can't be reversed!",
       callback: () =>
         effectDelete()
-          .then(() => {})
+          .then(() => dispatch({ type: 'DELETE_STAFF', data: staff.id }))
           .catch((err) => alert(err.message)),
     })
   }
@@ -67,6 +81,7 @@ function Users() {
 
   return (
     <div className='users container'>
+      {loading && <Loading />}
       <h1>Manage users</h1>
       <div className='flex' style={{ alignItems: 'center', margin: '1rem 0' }}>
         <input
@@ -96,11 +111,13 @@ function Users() {
                     <EditOutlined />
                   </Tooltip>
                 </IconButton>
-                <IconButton onClick={() => handleDelete(u, i)}>
-                  <Tooltip title='Delete User'>
-                    <DeleteOutlineRounded />
-                  </Tooltip>
-                </IconButton>
+                {user?.id !== u.id && (
+                  <IconButton onClick={() => handleDelete(u)}>
+                    <Tooltip title='Delete User'>
+                      <DeleteOutlineRounded />
+                    </Tooltip>
+                  </IconButton>
+                )}
               </TableCell>
             </TableRow>
           ))}

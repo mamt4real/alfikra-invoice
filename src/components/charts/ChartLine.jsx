@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
-function ChartLine({ title, data, datakey, grid }) {
+function ChartLine({ title, data, datakey, grid = true }) {
   return (
     <div className='chart'>
       <h3 className='chart__title'>{title}</h3>

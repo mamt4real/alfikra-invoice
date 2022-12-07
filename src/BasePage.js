@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import InvoiceModal from './components/InvoiceModal'
 import Navigation from './components/Navigation'
 import Modal from './components/Modal'
@@ -6,13 +6,14 @@ import './css/Homepage.css'
 import { Slide } from '@mui/material'
 import { Outlet } from 'react-router-dom'
 import { useStateValue } from './StateProvider'
+import db from './firebase/firebaseInit'
 
 function BasePage() {
   // const [size, setSize] = useState(window.innerWidth)
 
   const appContentRef = useRef(null)
   // const [{ invoiceModal, modal }, dispatch] = useStateValue()
-  const { user } = useStateValue()[0]
+  const [{ user }, dispatch] = useStateValue()
   const [showInvoiceModal, setShowInvoice] = useState(false)
   const [showModal, setShowModal] = useState({
     open: false,
@@ -25,12 +26,12 @@ function BasePage() {
   //   setSize(window.innerWidth)
   // }
 
-  // useEffect(() => {
-  //   window.addEventListener('resize', checkSize)
-  //   return () => {
-  //     window.removeEventListener('resize', checkSize)
-  //   }
-  // }, [])
+  useEffect(() => {
+    const loadData = async () => {
+      dispatch({ type: 'SET_ENGINES', data: await db.getAll('engines') })
+    }
+    loadData()
+  }, [dispatch])
   // if (size <= 760)
   //   return (
   //     <div className='mobile-message flex flex-column'>

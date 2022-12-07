@@ -2,7 +2,8 @@
 }
 
 .invoicepage .nav-link {
-  margin-bottom: 32px;
+  margin-top: 15px;
+  margin-bottom: 20px;
   display: block;
   align-items: center;
   color: #fff;
@@ -23,8 +24,8 @@
 
 .invoicepage > .header {
   align-items: center;
-  padding: 24px 32px;
-  font-size: 12px;
+  padding: 12px 16px;
+  font-size: 10px;
   justify-content: space-between;
 }
 
@@ -46,7 +47,7 @@
 }
 
 .invoicepage .invoice-details {
-  padding: 48px;
+  padding: 15px;
   margin-top: 24px;
 }
 
@@ -59,7 +60,7 @@
   font-size: 12px;
 }
 .invoice-details .top .left p:first-child {
-  font-size: 24px;
+  font-size: 18px;
   text-transform: uppercase;
   color: #fff;
   margin-bottom: 8px;
@@ -73,7 +74,7 @@
 }
 
 .invoice-details .top .right {
-  font-size: 12px;
+  font-size: 8pt;
   align-items: flex-end;
 }
 
@@ -81,6 +82,8 @@
   margin-top: 50px;
   color: #dfe3fa;
   gap: 16px;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .invoice-details .middle h4 {
@@ -89,11 +92,10 @@
   margin-bottom: 12px;
 }
 .invoice-details .middle p {
-  font-size: 16px;
+  font-size: 10pt;
 }
 
-.invoice-details .middle .bill,
-.invoice-details .middle .payment {
+.invoice-details .middle > div {
   flex: 1;
 }
 .invoice-details .middle .payment h4:nth-child(3) {
@@ -104,7 +106,7 @@
 }
 
 .invoice-details .middle .bill p:nth-child(2) {
-  font-size: 16px;
+  font-size: 8pt;
 }
 
 .invoice-details .middle .bill p:nth-child(3) {
@@ -114,23 +116,19 @@
   font-size: 12px;
 }
 
-.invoice-details .middle .send-to {
-  flex: 2;
-}
-
 .invoice-details .bottom {
   margin-top: 50px;
 }
 .invoice-details .bottom .billing-items {
-  padding: 32px;
+  padding: 18px;
   border-radius: 20px 20px 0 0;
   background-color: #252945;
 }
 
 .invoice-details .bottom .billing-items .heading {
   color: #dfe3fa;
-  font-size: 12px;
-  margin-bottom: 32px;
+  font-size: 8pt;
+  margin-bottom: 20px;
 }
 
 .bottom .billing-items .heading p:first-child,
@@ -146,8 +144,8 @@
 }
 
 .bottom .billing-items .item {
-  margin-bottom: 32px;
-  font-size: 13px;
+  margin-bottom: 20px;
+  font-size: 9pt;
   color: #fff;
 }
 
@@ -157,7 +155,7 @@
 
 .bottom .total {
   color: #fff;
-  padding: 32px;
+  padding: 20px;
   background-color: rgba(12, 14, 22, 0.7);
   align-items: center;
   border-radius: 0 0 20px 20px;
@@ -168,6 +166,56 @@
 }
 
 .bottom .total p:nth-child(2) {
-  font-size: 28px;
+  font-size: 16pt;
   text-align: right;
+}
+
+@media screen and (min-width: 800px) {
+  .invoicepage .nav-link {
+    margin-top: 0;
+    margin-bottom: 32px;
+  }
+  .invoice-details .top .left p:first-child {
+    font-size: 24px;
+  }
+  .invoicepage .invoice-details {
+    padding: 48px;
+  }
+  .invoice-details .middle p {
+    font-size: 16px;
+  }
+
+  .invoice-details .middle h4 {
+    font-size: 12px;
+  }
+  .invoice-details .top .right {
+    font-size: 12px;
+  }
+  .invoice-details .middle p {
+    font-size: 16px;
+  }
+  .invoice-details .middle .send-to {
+    flex: 2;
+  }
+  .invoice-details .bottom .billing-items {
+    padding: 32px;
+  }
+  .invoice-details .bottom .billing-items .heading {
+    font-size: 12px;
+    margin-bottom: 32px;
+  }
+  .bottom .billing-items .item {
+    margin-bottom: 32px;
+    font-size: 13px;
+  }
+  .bottom .total {
+    padding: 32px;
+  }
+  .bottom .total p:nth-child(2) {
+    font-size: 28px;
+  }
+  .invoicepage > .header {
+    padding: 24px 32px;
+    font-size: 12px;
+  }
 }

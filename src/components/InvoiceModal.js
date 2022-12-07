@@ -1,12 +1,10 @@
-import React, { useState, forwardRef } from 'react'
+import React, { useState, forwardRef, useEffect } from 'react'
 import deleteIcon from '../assets/icon-delete.svg'
 import plusIcon from '../assets/icon-plus.svg'
 import '../css/InvoiceModal.css'
 import db from '../firebase/firebaseInit'
 import { useStateValue } from '../StateProvider'
 import Loading from './Loading'
-// import { formatdate } from '../reducer'
-import { engines } from '../devdata/data'
 import { formatMoney } from '../reducer'
 import { useNavigate } from 'react-router-dom'
 
@@ -23,7 +21,7 @@ const emptyInvoice = {
   invoicePending: '',
   invoiceDraft: '',
   invoicePaid: '',
-  invoiceItemList: [{ itemName: '', engineNo: '', qty: 0, price: 0, total: 0 }],
+  invoiceItemList: [{ itemName: '', engineNo: '', qty: 1, price: 0, total: 0 }],
   invoiceTotal: 0,
   printed: false,
   userID: null,
@@ -31,8 +29,8 @@ const emptyInvoice = {
 
 const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
   const navigate = useNavigate()
-  const [{ currentInvoice, user }, dispatch] = useStateValue()
-  const [invoice, setInvoice] = useState(currentInvoice || emptyInvoice)
+  const [{ currentInvoice, user, engines }, dispatch] = useStateValue()
+  const [invoice, setInvoice] = useState(currentInvoice || { ...emptyInvoice })
   const [submitting, setSubmitting] = useState(false)
 
   const handleChange = (e) => {
@@ -83,7 +81,7 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
     if (e.target.id === 'invoice-wrap') showModal()
   }
   const uploadInvoice = async () => {
-    if (!invoice.invoiceItemList.length) {
+    if (!invoice.invoiceItemList[0].itemName) {
       alert('Please make sure you fill in the items')
       return
     }
@@ -145,6 +143,8 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
               type='text'
               id='clientPhone'
               name='clientPhone'
+              maxLength={11}
+              minLength={11}
               value={invoice.clientPhone}
               onChange={handleChange}
             />

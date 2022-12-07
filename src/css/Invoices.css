@@ -2,7 +2,7 @@
   color: white;
 }
 .home .header {
-  margin-bottom: 55px;
+  margin-bottom: 15px;
 }
 
 .home .header .left,
@@ -85,6 +85,25 @@
   font-size: 12px;
 }
 
+.home .searchbar {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: flex-end;
+  margin-bottom: 40px;
+}
+.home .searchbar > .input {
+  flex: 1;
+  margin-bottom: 0;
+}
+.home .searchbar > .input input {
+  padding-left: 10px;
+}
+
+.home .searchbar > button.button {
+  padding: 12px 4px;
+  flex: 0.3;
+}
 .invoices-container {
   max-height: 75vh;
   overflow-y: scroll;

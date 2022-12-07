@@ -1,10 +1,12 @@
 export const initialState = {
   invoices: [],
+  engines: [],
   invoicesLoaded: null,
   currentInvoice: null,
   invoiceModal: null,
   modal: null,
   showModal: null,
+  staffs: [],
   user: null,
   userType: null,
   token: null,
@@ -31,7 +33,7 @@ export const formatdate = (dateObj) => {
 }
 
 const updateFunction = (collection, modified, isDelete = false) => {
-  const index = collection.findIndex((ses) => ses.id === modified.id)
+  const index = collection.findIndex((ses) => ses.id === modified?.id)
   const updated = [...collection]
   if (isDelete) updated.splice(index, 1)
   else updated[index] = modified
@@ -64,6 +66,42 @@ export const reducer = (state, action) => {
         ...state,
         currentInvoice: state.invoices.find((inv) => inv.id === action.data),
       }
+    case 'SET_ENGINES':
+      return {
+        ...state,
+        engines: action.data,
+      }
+    case 'UPDATE_ENGINE':
+      return {
+        ...state,
+        engines: updateFunction(state.engines, action.data),
+      }
+    case 'DELETE_ENGINE':
+      return {
+        ...state,
+        engines: updateFunction(state.engines, { id: action.data }, true),
+      }
+    case 'ADD_ENGINE':
+      state.engines.splice(0, 0, action.data)
+      return state
+    case 'SET_STAFFS':
+      return {
+        ...state,
+        staffs: action.data,
+      }
+    case 'UPDATE_STAFF':
+      return {
+        ...state,
+        staffs: updateFunction(state.staffs, action.data),
+      }
+    case 'DELETE_STAFF':
+      return {
+        ...state,
+        staffs: updateFunction(state.staffs, { id: action.data }, true),
+      }
+    case 'ADD_STAFF':
+      state.staffs.splice(0, 0, action.data)
+      return state
     case 'TOGGLE_INVOICE_MODAL':
       return {
         ...state,

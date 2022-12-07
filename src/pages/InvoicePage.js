@@ -11,15 +11,23 @@ import arrowLeft from '../assets/icon-arrow-left.svg'
 import { formatdate, formatMoney } from '../reducer'
 import db from '../firebase/firebaseInit'
 import Loading from '../components/Loading'
+import Popup from '../components/Popup'
+import useReceipt from '../hooks/useReceipt'
 
 function InvoicePage() {
   const params = useParams()
   const navigate = useNavigate()
   const [{ currentInvoice }, dispatch] = useStateValue()
 
+  const [showReceipt, setShowRceipt] = useState(false)
+
   const [submitting, setSubmitting] = useState(false)
 
   const [fn, setShowModal] = useOutletContext()
+
+  const [Receipt, ActionsTab] = useReceipt(currentInvoice, () =>
+    setShowRceipt(false)
+  )
 
   useEffect(() => {
     dispatch({ type: 'SET_CURRENT_INVOICE', data: params.invoiceID })
@@ -55,48 +63,12 @@ function InvoicePage() {
     })
   }
 
-  const handlePrint = (e) => {}
-  // const updateStatus = (status) => {
-  //   const currentStatus = 'invoice' + status
-  //   const updatedStatus = {
-  //     invoicePending: null,
-  //     invoicePaid: null,
-  //     invoiceDraft: null,
-  //     [currentStatus]: true,
-  //   }
-  //   setSubmitting(true)
-  //   const effectChanges = async () => {
-  //     try {
-  //       // const docref = db.doc(db.db, 'invoices', currentInvoice.id)
-  //       // await db.updateDoc(
-  //       //   docref,
-  //       //   updatedStatus,
-  //       //   { merge: true }
-  //       // )
-  //       await db.updateOne('invoices', currentInvoice.id, updatedStatus)
-  //     } catch (error) {
-  //       console.log(error)
-  //       alert(error.message)
-  //     }
-  //   }
-  //   effectChanges()
-  //     .then((res) => {
-  //       dispatch({
-  //         type: 'UPDATE_INVOICE',
-  //         data: { ...currentInvoice, updatedStatus },
-  //       })
-  //       dispatch({
-  //         type: 'SET_CURRENT_INVOICE',
-  //         data: currentInvoice.id,
-  //       })
-  //       setSubmitting(false)
-  //     })
-  //     .catch((err) => {
-  //       alert(err.message)
-  //       setSubmitting(false)
-  //     })
-  // }
-  return currentInvoice ? (
+  const handlePrint = (e) => {
+    setShowRceipt(true)
+  }
+
+  if (!currentInvoice) return <div></div>
+  return (
     <div className='invoicepage container'>
       <Link to={'/invoices'} className='nav-link'>
         <img src={arrowLeft} alt='' /> Go back
@@ -105,7 +77,6 @@ function InvoicePage() {
       {submitting && <Loading />}
       <div className='header flex'>
         <div className='left flex'>
-          <span>Status</span>
           <div
             className={`status-button flex ${
               currentInvoice.invoicePaid
@@ -146,21 +117,6 @@ function InvoicePage() {
           <button className='green' onClick={handlePrint}>
             Print
           </button>
-          {/* {currentInvoice.invoicePending ? (
-            <button className='green' onClick={() => updateStatus('Paid')}>
-              Mark as Paid
-            </button>
-          ) : (
-            (currentInvoice.invoiceDraft || currentInvoice.invoicePaid) && (
-              <button
-                className='orange'
-                onClick={() => updateStatus('Pending')}
-              >
-                {' '}
-                Mark as Pending
-              </button>
-            )
-          )} */}
         </div>
       </div>
 
@@ -231,9 +187,13 @@ function InvoicePage() {
           </div>
         </div>
       </div>
+      <Popup title='Add/Edit User' open={showReceipt} setOpen={setShowRceipt}>
+        <div className='receipt'>
+          <Receipt />
+          <ActionsTab />
+        </div>
+      </Popup>
     </div>
-  ) : (
-    <div className=''></div>
   )
 }
 

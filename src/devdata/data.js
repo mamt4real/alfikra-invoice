@@ -5,6 +5,7 @@ const data = []
 export const users = Array(4)
   .fill(null)
   .map((_, i) => ({
+    id: i + 1,
     email: `user${i + 1}@example.com`,
     password: '12345pass',
     name: 'User ' + ['One', 'Two', 'Three', 'Four'][i],
@@ -72,6 +73,7 @@ for (let i = 0; i < 15; i++)
         }
       }),
     invoiceTotal: 0,
+    userID: i % users.length,
   })
 export const userSalesData = [
   {

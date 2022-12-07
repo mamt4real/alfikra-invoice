@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import '../css/LoginForm.css'
 import { Email, Lock, Person, Badge } from '@mui/icons-material'
-// import { useStateValue } from '../StateProvider'
+import { useStateValue } from '../StateProvider'
 import db from '../firebase/firebaseInit'
 
 function UserForm({ user, close }) {
@@ -14,7 +14,7 @@ function UserForm({ user, close }) {
     }
   )
   const [loading, setLoading] = useState(false)
-  // const dispatch = useStateValue()[1]
+  const dispatch = useStateValue()[1]
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -27,7 +27,8 @@ function UserForm({ user, close }) {
     try {
       if (user) {
         // Edit
-        db.updateOne('users', details)
+        const updated = await db.updateOne('users', details)
+        dispatch({ type: 'UPDATE_STAFF', data: updated })
       } else {
         // Add
         const [newUser, message] = await db.createUser(
@@ -35,6 +36,7 @@ function UserForm({ user, close }) {
         )
         if (newUser) {
           alert(message)
+          dispatch({ type: 'ADD_STAFF', data: newUser })
         } else {
           throw new Error(message)
         }

@@ -6,7 +6,9 @@ import emptyImage from '../assets/illustration-empty.svg'
 import { useStateValue } from '../StateProvider'
 import db from '../firebase/firebaseInit'
 import Invoice from '../components/Invoice'
+import Loading from '../components/Loading'
 import { useOutletContext } from 'react-router-dom'
+import { Phone } from '@mui/icons-material'
 
 function Invoices() {
   const [{ invoices }, dispatch] = useStateValue()
@@ -14,34 +16,52 @@ function Invoices() {
   const [filter, setFilter] = useState('All')
   const [showFilter, setShowFilter] = useState(false)
   const [fn] = useOutletContext()
+  const [loading, setLoading] = useState(false)
   const showInvoiceModal = () => fn(true)
+  const [phone, setPhone] = useState('')
 
   useEffect(() => {
-    const loadInvoices = async () => {
-      try {
-        dispatch({ type: 'SET_INVOICES', data: await db.getAll('invoices') })
-        dispatch({ type: 'SET_INVOICES_LOADED', data: true })
-        setDisplayed(invoices)
-      } catch (error) {
-        console.log(error)
-        dispatch({ type: 'SET_INVOICES_LOADED', data: false })
-        return alert('Error loading documents')
-      }
-    }
-    loadInvoices()
-  }, [dispatch, invoices])
+    if (invoices.length) return
+    setLoading(true)
+    db.getTodaysSales()
+      .then((invoices) => {
+        dispatch({ type: 'SET_INVOICES', data: invoices })
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setLoading(false))
+  }, [])
+
   const handleFilter = (e) => {
     const text = e.target.innerText
     if (text === 'Clear Filter') return setFilter('All')
     setFilter(text)
   }
 
+  const handleSearch = (e) => {
+    // Local Search
+    const found = invoices.filter((inv) => inv.clientPhone === phone)
+    if (found.length) {
+      return setDisplayed(found)
+    }
+    // Archive Search
+    setLoading(true)
+    db.getInvoiceByPhone(phone)
+      .then((data) => {
+        dispatch({ type: 'SET_INVOICES', data: [...invoices, ...data] })
+        setDisplayed(data)
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setLoading(false))
+  }
+
   useEffect(() => {
     if (filter === 'All') setDisplayed(invoices)
     else setDisplayed(invoices.filter((inv) => inv['invoice' + filter]))
   }, [filter, invoices])
+
   return (
     <div className='home container'>
+      {loading && <Loading />}
       <div className='header flex'>
         <div className='left flex flex-column'>
           <h1>Invoices</h1>
@@ -70,6 +90,27 @@ function Invoices() {
             <span>New Invoice</span>
           </div>
         </div>
+      </div>
+      <div className='searchbar'>
+        <div className='input flex flex-column'>
+          {/* <label htmlFor='Phone'>
+            <Phone />
+            Search Invoice by Phone No
+          </label> */}
+          <input
+            type='Phone'
+            id='Phone'
+            minLength={11}
+            maxLength={11}
+            name='Phone'
+            placeholder='Search Invoice by Phone No'
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
+        <button className='button dark-purple' onClick={handleSearch}>
+          Search
+        </button>
       </div>
       {displayed.length ? (
         <div className='invoices-container custom_scroll'>

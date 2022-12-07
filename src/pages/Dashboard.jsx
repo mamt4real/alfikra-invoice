@@ -24,21 +24,30 @@ function Dashboard() {
     engines: [],
   })
   useEffect(() => {
-    const getTodaySales = async () => {
+    const loadDetails = async () => {
       setLoading(true)
       try {
-        const data = await db.getAll('invoices')
+        const data = await db.getThisYearInvoices()
         const transformed = transformInvoices(data)
         const monthly = monthlySales(transformed)
         const engines = engineCount(transformed)
-        const thisMonth = transformed
-          .filter((sale) => sale.date?.getMonth() === new Date().getMonth())
-          .reduce((sub, sale) => sub + sale.total, 0)
-        const lastMonth = transformed
-          .filter((sale) => sale.date?.getMonth() === new Date().getMonth() - 1)
-          .reduce((sub, sale) => sub + sale.total, 0)
+        const total = (sales) =>
+          sales.reduce((sub, sale) => sub + sale.total, 0)
+        const mSales = transformed.filter(
+          (sale) => sale.date?.getMonth() === new Date().getMonth()
+        )
+        const today = total(
+          mSales.filter((sale) => sale.date?.getDate() === new Date().getDate())
+        )
+        const thisMonth = total(mSales)
+        const lastMonth = total(
+          transformed.filter(
+            (sale) => sale.date?.getMonth() === new Date().getMonth() - 1
+          )
+        )
+
         setStats({
-          today: transformed.reduce((sub, sale) => sub + sale.total, 0),
+          today,
           monthly,
           engines,
           thisMonth,
@@ -51,7 +60,7 @@ function Dashboard() {
       setLoading(false)
     }
 
-    getTodaySales()
+    loadDetails()
   }, [])
 
   return (
