@@ -22,23 +22,13 @@ function BasePage() {
     callback: () => setShowInvoice(false),
   })
 
-  // const checkSize = () => {
-  //   setSize(window.innerWidth)
-  // }
-
   useEffect(() => {
     const loadData = async () => {
       dispatch({ type: 'SET_ENGINES', data: await db.getAll('engines') })
     }
     loadData()
-  }, [dispatch])
-  // if (size <= 760)
-  //   return (
-  //     <div className='mobile-message flex flex-column'>
-  //       <h2>Oops This app is not compatible with mobile devices!!</h2>
-  //       <p>To view this app please use a desktop or tablet</p>
-  //     </div>
-  //   )
+  }, [])
+
   return (
     <div className='homepage flex flex-column'>
       {user && <Navigation showDialog={setShowModal} />}

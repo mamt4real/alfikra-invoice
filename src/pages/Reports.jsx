@@ -13,10 +13,10 @@ import {
 import ChartBar from '../components/charts/ChartBar'
 import { useEffect } from 'react'
 import Loading from '../components/Loading'
-import ChartLine from '../components/charts/ChartLine'
+import { Link } from 'react-router-dom'
 
 function Reports() {
-  const { invoices, staffs } = useStateValue()[0]
+  const [{ invoices, staffs }, dispatch] = useStateValue()
   const [loading, setLoading] = useState(false)
   const [fetchedInvoices, setFetched] = useState(invoices)
   const [filters, setFilters] = useState({
@@ -140,19 +140,23 @@ function Reports() {
               {stats.totalProducts}
             </Typography>
           </div>
-          {/* <div className='metric'>
-            <Typography variant='title' className='key'>
-              Most Sold Product
-            </Typography>
-            <Typography variant='subtitle' className='money'>
-              {'Sumec 121 Ultra'}
-            </Typography>
-          </div> */}
         </div>
-        <div className='flex actions'>
-          <button className='button orange'>Download</button>
-          <button className='button purple'>Print</button>
-        </div>
+
+        <Link
+          to={`/admin/reports/preview?from=${filters.dateFrom}&to=${filters.dateTo}`}
+        >
+          <button
+            className='button purple'
+            onClick={() =>
+              dispatch({
+                type: 'SET_REPORTS',
+                data: transformInvoices(fetchedInvoices),
+              })
+            }
+          >
+            Preview Invoices
+          </button>
+        </Link>
       </section>
       <section className='right flex flex-column'>
         <div>

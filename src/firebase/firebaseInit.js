@@ -8,7 +8,6 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   onAuthStateChanged as userChanged,
-  // sendEmailVerification,
   signOut,
 } from 'firebase/auth'
 import {
@@ -23,7 +22,7 @@ import {
   query,
   where,
   orderBy,
-  // setDoc,
+  setDoc,
 } from 'firebase/firestore/lite'
 import { uid } from 'uid'
 import devData, { engines, users } from '../devdata/data'
@@ -174,7 +173,7 @@ const createOne = async (colname, data) => {
   return { ...newDoc.data(), id: newDoc.id }
 }
 
-const updateOne = async (colname, data) => {
+const updateOne = async (colname, docData) => {
   if (devEnv) {
     let data
     switch (colname) {
@@ -187,15 +186,18 @@ const updateOne = async (colname, data) => {
       default:
         data = []
     }
-    const index = data.findIndex((x) => x.id === data.id)
+    console.log(data)
+    const index = data.findIndex((x) => x.id === docData.id)
+    console.log(index)
     if (index > -1) {
-      data[index] = { ...data[index], ...data }
+      data[index] = { ...data[index], ...docData }
       return data[index]
     }
+    console.log(index)
     return
   }
-  const docRef = doc(db, colname, data.id)
-  await updateDoc(docRef, data, { merge: true })
+  const docRef = doc(db, colname, docData.id)
+  await updateDoc(docRef, docData, { merge: true })
   const updated = await getDoc(docRef)
   return { id: updated.id, ...updated.data() }
 }
@@ -230,7 +232,7 @@ const createUser = async (email, password, name, role) => {
     )
     if (userCredentials) {
       const authUser = userCredentials.user
-      const userRef = await addDoc(doc(db, 'users', authUser.uid), {
+      await setDoc(doc(db, 'users', authUser.uid), {
         displayName: authUser.displayName,
         email: authUser.email,
         image: authUser.photoURL,
@@ -238,7 +240,7 @@ const createUser = async (email, password, name, role) => {
         name,
         role,
       })
-      const user = await getDoc(userRef)
+      const user = await getOne('users', authUser.uid)
       return [user, 'User Created Successfully']
     } else {
       return [null, 'Something went wrong!']

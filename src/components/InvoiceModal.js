@@ -86,19 +86,21 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
       return
     }
     setSubmitting(true)
-    // const id = currentInvoice ? currentInvoice.id : uid()
-    // // const reference = db.doc(db.db, 'invoices', id)
     const fn = currentInvoice ? db.updateOne : db.createOne
     try {
-      const newInvoice = await fn('invoices', { ...invoice, userID: user.id })
+      const newInvoice = await fn('invoices', {
+        ...invoice,
+        ...(!!!currentInvoice && { userID: user?.id }),
+      })
       dispatch({
         type: `${currentInvoice ? 'UPDATE' : 'ADD'}_INVOICE`,
         data: newInvoice,
       })
       setSubmitting(false)
       closeFunction()
-      navigate(`/invoices/${newInvoice.id}`)
+      navigate(`/invoices/${newInvoice?.id}`)
     } catch (error) {
+      console.log(error)
       alert(error.message)
       setSubmitting(false)
     }

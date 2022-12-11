@@ -19,7 +19,6 @@ import EngineForm from '../components/EngineForm'
 import { formatMoney } from '../reducer'
 import { useStateValue } from '../StateProvider'
 import db from '../firebase/firebaseInit'
-import { useEffect } from 'react'
 
 const headCells = [
   { id: 'name', label: 'Product Name' },

@@ -58,12 +58,16 @@ section.left .filter_container .input {
   width: 100%;
 }
 .reports > section.right .chart {
-  padding: 10px;
-  margin-bottom: 5px;
+  margin: 0;
+  margin-bottom: 1rem;
 }
 
 @media screen and (min-width: 900px) {
   .reports.container.dashboard {
     flex-direction: row;
+  }
+  .reports > section.right .chart {
+    padding: 10px;
+    margin-bottom: 5px;
   }
 }

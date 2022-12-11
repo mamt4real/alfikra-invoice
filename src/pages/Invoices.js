@@ -8,7 +8,6 @@ import db from '../firebase/firebaseInit'
 import Invoice from '../components/Invoice'
 import Loading from '../components/Loading'
 import { useOutletContext } from 'react-router-dom'
-import { Phone } from '@mui/icons-material'
 
 function Invoices() {
   const [{ invoices }, dispatch] = useStateValue()
@@ -38,16 +37,11 @@ function Invoices() {
   }
 
   const handleSearch = (e) => {
-    // Local Search
-    const found = invoices.filter((inv) => inv.clientPhone === phone)
-    if (found.length) {
-      return setDisplayed(found)
-    }
     // Archive Search
     setLoading(true)
     db.getInvoiceByPhone(phone)
       .then((data) => {
-        dispatch({ type: 'SET_INVOICES', data: [...invoices, ...data] })
+        dispatch({ type: 'SET_SEARCHED', data })
         setDisplayed(data)
       })
       .catch((err) => console.log(err))

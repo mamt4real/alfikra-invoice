@@ -35,26 +35,29 @@ function useReceipt(invoice, closeFunction) {
         Date of Purchase: {formatdate(invoice?.invoiceDate)}
       </Text>
       <Br />
-      <Line character='=' />
 
-      {Array(5)
-        .fill()
-        .map((_, i) => (
-          <Row
-            left={<Text bold={true}>Item {i}:</Text>}
-            right={formatMoney(1950)}
-          />
-          // <span key={i + 1}>Hello {i + 1}</span>
-        ))}
-      {/* {invoice?.invoiceItemList?.map((item, i) => (
-      <Row left={`${item.itemName}`} right={item.total} key={i + 1} />
-      ))} */}
+      <Text align='center' bold={true} underline={true}>
+        List of Items
+      </Text>
+      <Row left='Item (Quantity)' right={'Total Price'} />
+      <Line character='=' />
+      {invoice?.invoiceItemList.map((itm, i) => (
+        <Row
+          key={i + 1}
+          left={
+            <Text bold={true}>
+              {itm.itemName} ({itm.qty}):
+            </Text>
+          }
+          right={formatMoney(itm.total)}
+        />
+      ))}
       <Line character='=' />
       <Row
         left={<Text bold={true}>Total:</Text>}
-        right={<Text>{invoice?.invoiceTotal}</Text>}
+        right={<Text>{formatMoney(invoice?.invoiceTotal)}</Text>}
       />
-      <Barcode align='center' type='UPC-A' content={invoice.id} />
+      <Barcode align='center' type='UPC-A' content={invoice?.id} />
       <Cut />
     </Printer>
   )

@@ -4,6 +4,8 @@ export const initialState = {
   invoicesLoaded: null,
   currentInvoice: null,
   invoiceModal: null,
+  searched: [],
+  reports: [],
   modal: null,
   showModal: null,
   staffs: [],
@@ -64,8 +66,23 @@ export const reducer = (state, action) => {
     case 'SET_CURRENT_INVOICE':
       return {
         ...state,
-        currentInvoice: state.invoices.find((inv) => inv.id === action.data),
+        currentInvoice:
+          state.invoices.find((inv) => inv.id === action.data) ||
+          state.searched.find((inv) => inv.id === action.data),
       }
+
+    case 'SET_SEARCHED': {
+      return {
+        ...state,
+        searched: action.data,
+      }
+    }
+    case 'SET_REPORTS': {
+      return {
+        ...state,
+        reports: action.data,
+      }
+    }
     case 'SET_ENGINES':
       return {
         ...state,

@@ -10,6 +10,7 @@ import Users from './pages/Users'
 import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 import Profile from './pages/Profile'
+import ReportsPreview from './pages/ReportsPreview'
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
               <Route path='dashboard' element={<Dashboard />} />
               <Route path='products' element={<Products />} />
               <Route path='reports' element={<Reports />} />
+              <Route path='reports/preview' element={<ReportsPreview />} />
               <Route path='users' element={<Users />} />
             </Route>
           </Route>

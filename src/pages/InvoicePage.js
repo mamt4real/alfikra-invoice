@@ -17,7 +17,7 @@ import useReceipt from '../hooks/useReceipt'
 function InvoicePage() {
   const params = useParams()
   const navigate = useNavigate()
-  const [{ currentInvoice }, dispatch] = useStateValue()
+  const [{ currentInvoice, user }, dispatch] = useStateValue()
 
   const [showReceipt, setShowRceipt] = useState(false)
 
@@ -98,22 +98,23 @@ function InvoicePage() {
           </div>
         </div>
         <div className='right flex'>
-          {!currentInvoice.printed && (
-            <>
-              <button
-                className='orange'
-                onClick={() => toggleInvoiceEdit(currentInvoice.id)}
-              >
-                Edit
-              </button>
-              <button
-                className='red'
-                onClick={() => deleteInvoice(currentInvoice.id)}
-              >
-                Delete
-              </button>
-            </>
-          )}
+          {!currentInvoice.printed &&
+            (user.id === currentInvoice.userID || user.role === 'admin') && (
+              <>
+                <button
+                  className='orange'
+                  onClick={() => toggleInvoiceEdit(currentInvoice.id)}
+                >
+                  Edit
+                </button>
+                <button
+                  className='red'
+                  onClick={() => deleteInvoice(currentInvoice.id)}
+                >
+                  Delete
+                </button>
+              </>
+            )}
           <button className='green' onClick={handlePrint}>
             Print
           </button>
@@ -151,13 +152,11 @@ function InvoicePage() {
           <div className='bill flex flex-column'>
             <h4>Bill to</h4>
             <p>{currentInvoice.clientName}</p>
-            <p>{currentInvoice.clientStreetAddress}</p>
-            <p>{currentInvoice.clientCity}</p>
-            <p>{currentInvoice.clientZipCode}</p>
-            <p>{currentInvoice.clientCountry}</p>
           </div>
           <div className='send-to flex flex-column'>
             <h4>Sent to</h4>
+            <p>{currentInvoice.clientPhone}</p>
+            <p>{currentInvoice.clientAddress}</p>
             <p>{currentInvoice.clientEmail}</p>
           </div>
         </div>

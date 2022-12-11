@@ -43,7 +43,8 @@ for (let i = 0; i < 15; i++)
     billerZipCode: 'Zip Code' + (i + 1),
     billerCountry: 'Country' + (i + 1),
     clientName: 'Name' + (i + 1),
-    clientPhone: 'email' + (i + 1) + '@example.com',
+    clientPhone: Math.floor(Math.random() * 100000000000),
+    clientEmail: 'email' + (i + 1) + '@example.com',
     clientAddress: 'strret address' + (i + 1),
     clientCity: 'client City' + (i + 1),
     clientZipCode: 'zip code' + (i + 1),
@@ -67,6 +68,7 @@ for (let i = 0; i < 15; i++)
         const engine = engines[Math.floor(Math.random() * engines.length)]
         return {
           itemName: engine.name,
+          engineNo: Math.floor(Math.random() * 10000000),
           qty: i + 1,
           price: engine.basePrice,
           total: engine.basePrice * (i + 1),
