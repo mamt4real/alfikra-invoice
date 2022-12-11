@@ -27,6 +27,10 @@ section.left > div {
   gap: 15px;
 }
 
+button.button.preview-btn {
+  width: 100%;
+}
+
 section.left .filter_container .input {
   flex: 1;
   justify-content: space-between;
@@ -49,7 +53,8 @@ section.left .filter_container .input {
 .quick_metrics > .metric > .key.MuiTypography-root {
   background-color: #33d69f;
   font-weight: bold;
-  padding: 20px;
+  padding: 12px;
+  font-size: 14px;
   border-radius: inherit;
   color: var(--bg-dark);
 }
@@ -63,6 +68,10 @@ section.left .filter_container .input {
 }
 
 @media screen and (min-width: 900px) {
+  .quick_metrics > .metric > .key.MuiTypography-root {
+    padding: 20px;
+    font-size: 18px;
+  }
   .reports.container.dashboard {
     flex-direction: row;
   }

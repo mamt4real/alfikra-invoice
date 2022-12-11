@@ -146,7 +146,7 @@ function Reports() {
           to={`/admin/reports/preview?from=${filters.dateFrom}&to=${filters.dateTo}`}
         >
           <button
-            className='button purple'
+            className='preview-btn button purple'
             onClick={() =>
               dispatch({
                 type: 'SET_REPORTS',
@@ -154,7 +154,7 @@ function Reports() {
               })
             }
           >
-            Preview Invoices
+            Preview Records
           </button>
         </Link>
       </section>
