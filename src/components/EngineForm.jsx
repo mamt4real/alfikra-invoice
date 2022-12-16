@@ -8,6 +8,8 @@ function EngineForm({ engine, close }) {
   const [details, setDetails] = useState(
     engine || {
       name: '',
+      constPrice: 0,
+      quantity: 0,
       basePrice: 0,
     }
   )

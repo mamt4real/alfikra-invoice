@@ -9,10 +9,15 @@ function AdminBasePage() {
   const dispatch = useStateValue()[1]
 
   useEffect(() => {
+    let isCanceled = false
     const loadData = async () => {
-      dispatch({ type: 'SET_STAFFS', data: await db.getAll('users') })
+      const data = await db.getAll('users')
+      if (!isCanceled) dispatch({ type: 'SET_STAFFS', data })
     }
     loadData()
+    return () => {
+      isCanceled = true
+    }
   }, [])
 
   return (

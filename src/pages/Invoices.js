@@ -21,13 +21,18 @@ function Invoices() {
 
   useEffect(() => {
     if (invoices.length) return
+    let isCanceled = false
     setLoading(true)
     db.getTodaysSales()
       .then((invoices) => {
-        dispatch({ type: 'SET_INVOICES', data: invoices })
+        if (!isCanceled) dispatch({ type: 'SET_INVOICES', data: invoices })
       })
       .catch((err) => console.log(err))
       .finally(() => setLoading(false))
+
+    return () => {
+      isCanceled = true
+    }
   }, [])
 
   const handleFilter = (e) => {

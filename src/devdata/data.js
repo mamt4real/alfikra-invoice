@@ -1,7 +1,6 @@
 import { uid } from 'uid'
 
-const data = []
-
+// Dummy Users
 export const users = Array(4)
   .fill(null)
   .map((_, i) => ({
@@ -12,29 +11,21 @@ export const users = Array(4)
     role: ['admin', 'client'][i === 0 ? 0 : 1],
   }))
 
-export const engines = [
-  {
+// Dummy Products
+const products = ['TIGER ELEMAX', 'YAMAHA', 'TECH', 'TECH', 'BIBUT']
+export const engines = products.map((name) => {
+  const costPrice = Math.round(Math.random() * 10000000) / 100
+  return {
     id: uid(6),
-    name: 'TIGER ELEMAX',
-    basePrice: Math.round(Math.random() * 100000) / 100,
-  },
-  {
-    id: uid(6),
-    name: 'YAMAHA',
-    basePrice: Math.round(Math.random() * 100000) / 100,
-  },
-  {
-    id: uid(6),
-    name: 'TECH',
-    basePrice: Math.round(Math.random() * 100000) / 100,
-  },
-  {
-    id: uid(6),
-    name: 'BIBUT',
-    basePrice: Math.round(Math.random() * 100000) / 100,
-  },
-]
+    name,
+    costPrice,
+    quantity: Math.ceil(Math.random() * 100),
+    basePrice: costPrice + 2500,
+  }
+})
 
+// Dummy Receipts
+const data = []
 for (let i = 0; i < 15; i++)
   data.push({
     id: uid(6),
@@ -77,6 +68,8 @@ for (let i = 0; i < 15; i++)
     invoiceTotal: 0,
     userID: i % users.length,
   })
+
+// Dummy chart data
 export const userSalesData = [
   {
     name: 'Jan',

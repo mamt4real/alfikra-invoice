@@ -63,7 +63,7 @@ function Reports() {
     updateStats()
   }, [fetchedInvoices])
 
-  const fetchData = async () => {
+  const fetchData = () => {
     setLoading(true)
     db.getDateRangedInvoices(filters.dateFrom, filters.dateTo)
       .then((data) => setFetched(data))

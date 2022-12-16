@@ -23,10 +23,15 @@ function BasePage() {
   })
 
   useEffect(() => {
+    let isCanceled = false
     const loadData = async () => {
-      dispatch({ type: 'SET_ENGINES', data: await db.getAll('engines') })
+      const data = await db.getAll('engines')
+      if (!isCanceled) dispatch({ type: 'SET_ENGINES', data })
     }
     loadData()
+    return () => {
+      isCanceled = true
+    }
   }, [])
 
   return (
