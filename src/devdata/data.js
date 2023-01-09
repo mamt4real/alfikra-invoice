@@ -15,12 +15,13 @@ export const users = Array(4)
 const products = ['TIGER ELEMAX', 'YAMAHA', 'TECH', 'TECH', 'BIBUT']
 export const engines = products.map((name) => {
   const costPrice = Math.round(Math.random() * 10000000) / 100
+  const profit = Math.round(Math.random() * 20 * costPrice) / 100
   return {
     id: uid(6),
     name,
     costPrice,
     quantity: Math.ceil(Math.random() * 100),
-    basePrice: costPrice + 2500,
+    basePrice: costPrice + profit,
   }
 })
 
@@ -62,6 +63,7 @@ for (let i = 0; i < 15; i++)
           engineNo: Math.floor(Math.random() * 10000000),
           qty: i + 1,
           price: engine.basePrice,
+          cost: engine.costPrice,
           total: engine.basePrice * (i + 1),
         }
       }),

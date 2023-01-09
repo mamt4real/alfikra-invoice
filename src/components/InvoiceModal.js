@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useEffect } from 'react'
+import React, { useState, forwardRef } from 'react'
 import deleteIcon from '../assets/icon-delete.svg'
 import plusIcon from '../assets/icon-plus.svg'
 import '../css/InvoiceModal.css'
@@ -21,7 +21,9 @@ const emptyInvoice = {
   invoicePending: '',
   invoiceDraft: '',
   invoicePaid: '',
-  invoiceItemList: [{ itemName: '', engineNo: '', qty: 1, price: 0, total: 0 }],
+  invoiceItemList: [
+    { itemName: '', engineNo: '', qty: 1, price: 0, total: 0, cost: 0 },
+  ],
   invoiceTotal: 0,
   printed: false,
   userID: null,
@@ -43,7 +45,14 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
     setInvoice(newInvoice)
   }
   const addNewItem = () => {
-    const emptyItem = { itemName: '', qty: 1, price: 0, total: 0 }
+    const emptyItem = {
+      itemName: '',
+      qty: 1,
+      price: 0,
+      total: 0,
+      cost: 0,
+      engineNo: '',
+    }
     setInvoice({
       ...invoice,
       invoiceItemList: [...invoice.invoiceItemList, emptyItem],
@@ -56,7 +65,10 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
 
     if (name === 'itemName') {
       const engine = engines.find((e) => e.name === value)
-      if (engine) newInvoice.invoiceItemList[index]['price'] = engine.basePrice
+      if (engine) {
+        newInvoice.invoiceItemList[index]['price'] = engine.basePrice
+        newInvoice.invoiceItemList[index]['cost'] = engine.costPrice
+      }
     }
 
     if (['price', 'qty', 'itemName'].includes(name)) {
@@ -69,7 +81,6 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
     }
 
     setInvoice(newInvoice)
-    //do something
   }
   const handleDeleteItem = (index) => {
     //do something
@@ -183,20 +194,18 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
                 {invoice.invoiceItemList.map((item, i) => (
                   <tr key={i + 1} className='table-items flex'>
                     <td className='item-name'>
-                      <input
-                        type='text'
-                        list='engines'
+                      <select
                         value={item.itemName}
                         name={'itemName'}
                         onChange={(e) => handleItemChange(e, i)}
-                      />
-                      <datalist id='engines'>
+                      >
+                        <option value=''>Select Engine</option>
                         {engines.map((e, i) => (
                           <option value={e.name} key={i + 1}>
                             {e.name}
                           </option>
                         ))}
-                      </datalist>
+                      </select>
                     </td>
                     <td className='price engineNo'>
                       <input
@@ -261,13 +270,6 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
             </div>
           ) : (
             <div className='right flex'>
-              {/* <button
-                className='dark-purple'
-                type='submit'
-                onClick={() => setInvoice({ ...invoice, invoiceDraft: true })}
-              >
-                Save Draft
-              </button> */}
               <button
                 className='purple'
                 type='submit'

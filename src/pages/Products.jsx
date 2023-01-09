@@ -1,28 +1,26 @@
 import React, { useState } from 'react'
 import {
+  IconButton,
   TableBody,
   TableCell,
   TableRow,
-  IconButton,
   Tooltip,
 } from '@mui/material'
 import useTable from '../hooks/useTable'
-import {
-  DeleteOutlineRounded,
-  EditOutlined,
-  PlusOne,
-} from '@mui/icons-material'
+import { EditOutlined, PlusOne } from '@mui/icons-material'
 import Popup from '../components/Popup'
 import '../css/Users.css'
-import { useOutletContext } from 'react-router-dom'
 import EngineForm from '../components/EngineForm'
 import { formatMoney } from '../reducer'
 import { useStateValue } from '../StateProvider'
-import db from '../firebase/firebaseInit'
+
+import { Link } from 'react-router-dom'
 
 const headCells = [
   { id: 'name', label: 'Product Name' },
-  { id: 'basePrice', label: 'Base Price' },
+  { id: 'costPrice', label: 'Cost Price' },
+  { id: 'quantity', label: 'Quantity' },
+  { id: 'basePrice', label: 'Selling Price' },
   { id: 'actions', label: 'Actions', disableSort: true },
 ]
 
@@ -30,29 +28,10 @@ function Products() {
   const [edited, setEdited] = useState(null)
   const [openPopup, setOpen] = useState(false)
   const [filter, setFilter] = useState({ fn: (items) => items })
-  const [{ engines }, dispatch] = useStateValue()
-  const setShowModal = useOutletContext()[1]
+  const { engines } = useStateValue()[0]
+
   const { TableContainer, TblHead, TblPagination, recordsAfterPagination } =
     useTable(engines, headCells, filter)
-
-  const handleDelete = (engine, index) => {
-    const effectDelete = async () => {
-      await db.deleteOne('engines', engine.id)
-    }
-    setShowModal({
-      open: true,
-      title: `Are you sure you want to delete ${engine.name}?`,
-      subtitle: "This action can't be reversed!",
-      callback: () =>
-        effectDelete()
-          .then(() => dispatch({ type: 'DELETE_ENGINE', data: engine.id }))
-          .catch((err) => alert(err.message)),
-    })
-  }
-  const handleEdit = (engine) => {
-    setEdited(engine)
-    setOpen(true)
-  }
 
   const handleNew = (e) => {
     setEdited(null)
@@ -84,7 +63,7 @@ function Products() {
         />
 
         <button onClick={handleNew} className='button green new_btn'>
-          <PlusOne /> New Engine
+          <PlusOne /> Add
         </button>
       </div>
       <TableContainer>
@@ -93,25 +72,27 @@ function Products() {
           {recordsAfterPagination().map((e, i) => (
             <TableRow key={i + 1}>
               <TableCell>{e.name}</TableCell>
+              <TableCell>{formatMoney(e.costPrice)}</TableCell>
+              <TableCell>{e.quantity}</TableCell>
               <TableCell>{formatMoney(e.basePrice)}</TableCell>
               <TableCell>
-                <IconButton onClick={() => handleEdit(e)}>
-                  <Tooltip title='Edit Engine'>
-                    <EditOutlined />
+                <Link to={`/admin/products/${e.id}`}>
+                  <Tooltip title='Details'>
+                    <IconButton
+                      sx={{ backgroundColor: 'primary.dark' }}
+                      variant='contained'
+                    >
+                      <EditOutlined />
+                    </IconButton>
                   </Tooltip>
-                </IconButton>
-                <IconButton onClick={() => handleDelete(e, i)}>
-                  <Tooltip title='Delete User'>
-                    <DeleteOutlineRounded />
-                  </Tooltip>
-                </IconButton>
+                </Link>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </TableContainer>
       <TblPagination />
-      <Popup title='Add/Edit Engine' open={openPopup} setOpen={setOpen}>
+      <Popup title='Add Engine' open={openPopup} setOpen={setOpen}>
         <EngineForm engine={edited} close={() => setOpen(false)} />
       </Popup>
     </div>

@@ -32,6 +32,7 @@ function Invoices() {
 
     return () => {
       isCanceled = true
+      setLoading(false)
     }
   }, [])
 
@@ -42,7 +43,6 @@ function Invoices() {
   }
 
   const handleSearch = (e) => {
-    // Archive Search
     setLoading(true)
     db.getInvoiceByPhone(phone)
       .then((data) => {

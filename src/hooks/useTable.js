@@ -18,10 +18,14 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
     backgroundColor: 'var(--bg-light)',
     padding: theme.spacing(1),
+    minWidth: 'max-content',
     '& thead th': {
       fontWeight: '600',
       color: theme.palette.primary.main,
       backgroundColor: 'lightgray',
+      '&:not(last-child)': {
+        borderRight: 'solid 1px ' + theme.palette.primary.main,
+      },
     },
     '& tbody td': {
       fontWeight: '300',

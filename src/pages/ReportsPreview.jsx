@@ -13,7 +13,7 @@ function ReportsPreview() {
   const [searchParams] = useSearchParams()
   const from = searchParams.get('from')
   const to = searchParams.get('to')
-  const [{ reports }] = useStateValue()
+  const { reports } = useStateValue()[0]
 
   return (
     <div className='container reppreview flex flex-column'>
@@ -55,7 +55,8 @@ function ReportsPreview() {
               <th>Date</th>
               <th>Product</th>
               <th>Quantity</th>
-              <th>Total</th>
+              <th>Sale</th>
+              <th>Profit</th>
             </tr>
           </thead>
           <tbody>
@@ -66,6 +67,9 @@ function ReportsPreview() {
                 <td>{rec.itemName}</td>
                 <td>{rec.qty}</td>
                 <td className='money'>{formatMoney(rec.total)}</td>
+                <td className='money'>
+                  {formatMoney(rec.total - rec.cost * rec.qty)}
+                </td>
               </tr>
             ))}
           </tbody>

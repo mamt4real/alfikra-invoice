@@ -14,13 +14,15 @@ export const initialState = {
   token: null,
 }
 
-export const formatMoney = (amount) =>
-  Number(amount).toLocaleString('us-US', {
+export const formatMoney = (amount) => {
+  if (isNaN(amount)) amount = 0.0
+  return Number(amount).toLocaleString('us-US', {
     style: 'currency',
     currency: 'NGN',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
+}
 
 export const formatdate = (dateObj) => {
   const date = dateObj?.hasOwnProperty('seconds')

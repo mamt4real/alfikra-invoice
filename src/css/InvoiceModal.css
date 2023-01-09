@@ -89,7 +89,7 @@
 }
 .work-items .item-list .table-items,
 .work-items .item-list .table-heading {
-  gap: 8px;
+  /* gap: 8px; */
   font-size: 12px;
 }
 
@@ -110,8 +110,10 @@
   flex-basis: 50%;
 }
 
-.table-items input {
+.table-items input,
+.table-items select {
   padding-left: 3px;
+  margin-bottom: 0 !important;
 }
 .item-list .table-items .qty,
 .table-heading .qty {

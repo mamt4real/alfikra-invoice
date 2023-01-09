@@ -11,4 +11,8 @@
     padding: 40px;
     margin-top: 20px;
   }
+  .green.new_btn {
+    padding: 8px 12px;
+    max-width: 120px;
+  }
 }

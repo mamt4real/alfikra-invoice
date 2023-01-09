@@ -92,7 +92,6 @@ const getDateRangedInvoices = async (from, to) => {
     )
   }
 
-  // reset Hours
   from.setHours(0, 0, 0, 0)
   to.setHours(23, 59, 59, 0)
 
@@ -101,7 +100,6 @@ const getDateRangedInvoices = async (from, to) => {
     where('invoiceDate', '>=', from),
     where('invoiceDate', '<=', to),
     orderBy('invoiceDate', 'desc')
-    // orderBy('invoiceTotal', 'desc')
   )
   const docsSnapshot = await getDocs(q)
   const invoices = []
@@ -133,7 +131,6 @@ const getTodaysSales = async () => {
   params[2] = parseInt(params[2]) + 1
   params[2] = params[2] > 9 ? params[2] : '0' + params[2]
   const tomorrow = params.join('-')
-  // console.log(today, '>>>', tomorrow)
   return getDateRangedInvoices(today, tomorrow)
 }
 
@@ -164,7 +161,6 @@ const getOne = async (colname, id) => {
 const createOne = async (colname, data) => {
   if (devEnv) {
     const newDoc = { ...data, id: uid() }
-    // devData.push(newDoc)
     return newDoc
   }
   const colRef = collection(db, colname)
@@ -186,7 +182,6 @@ const updateOne = async (colname, docData) => {
       default:
         data = []
     }
-    console.log(data)
     const index = data.findIndex((x) => x.id === docData.id)
     console.log(index)
     if (index > -1) {

@@ -27,6 +27,8 @@ function Reports() {
     totalSales: 0,
     averageMonthly: 0,
     totalProducts: 0,
+    profitPercentage: 0.0,
+    totalProfit: 0,
     mostSold: '',
     engineChartData: [],
     usersChartData: [],
@@ -40,6 +42,14 @@ function Reports() {
     const engineChartData = engineCount(transformed)
     const totalSales = transformed.reduce((sub, sale) => sub + sale.total, 0)
     const averageMonthly = totalSales / months
+    const totalCost = transformed.reduce(
+      (sub, sale) => sub + sale.cost * sale.qty,
+      0
+    )
+    const totalProfit = totalSales - totalCost
+    const profitPercentage = Number(
+      (totalProfit * 100) / (totalCost || 1)
+    ).toFixed(1)
     const totalProducts = transformed.reduce(
       (sub, sale) => parseInt(sale.qty) + sub,
       0
@@ -51,6 +61,8 @@ function Reports() {
       totalProducts,
       averageMonthly,
       usersChartData,
+      totalProfit,
+      profitPercentage,
     })
   }
 
@@ -122,6 +134,14 @@ function Reports() {
             </Typography>
             <Typography variant='subtitle' className='money'>
               {formatMoney(stats.totalSales)}
+            </Typography>
+          </div>
+          <div className='metric'>
+            <Typography variant='title' className='key'>
+              Total Profit
+            </Typography>
+            <Typography variant='subtitle' className='money'>
+              {formatMoney(stats.totalProfit)} ({stats.profitPercentage}%)
             </Typography>
           </div>
           <div className='metric'>

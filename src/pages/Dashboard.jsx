@@ -1,4 +1,4 @@
-import { TrendingDown, TrendingUp } from '@mui/icons-material'
+// import { TrendingDown, TrendingUp } from '@mui/icons-material'
 import { Card, CardContent, CardHeader } from '@mui/material'
 import React, { useEffect } from 'react'
 import ChartLine from '../components/charts/ChartLine'
@@ -33,18 +33,27 @@ function Dashboard() {
         const engines = engineCount(transformed)
         const total = (sales) =>
           sales.reduce((sub, sale) => sub + sale.total, 0)
+
+        const cost = (sales) =>
+          sales.reduce((sub, sale) => sub + sale.cost * sale.qty, 0)
         const mSales = transformed.filter(
           (sale) => sale.date?.getMonth() === new Date().getMonth()
         )
-        const today = total(
-          mSales.filter((sale) => sale.date?.getDate() === new Date().getDate())
+        const todaySales = mSales.filter(
+          (sale) => sale.date?.getDate() === new Date().getDate()
         )
-        const thisMonth = total(mSales)
-        const lastMonth = total(
-          transformed.filter(
-            (sale) => sale.date?.getMonth() === new Date().getMonth() - 1
-          )
+        const today = {
+          sales: total(todaySales),
+        }
+        today.profit = today.sales - cost(todaySales)
+        const thisMonth = { sales: total(mSales) }
+        thisMonth.profit = thisMonth.sales - cost(mSales)
+
+        const lastMonthSales = transformed.filter(
+          (sale) => sale.date?.getMonth() === new Date().getMonth() - 1
         )
+        const lastMonth = { sales: total(lastMonthSales) }
+        lastMonth.profit = lastMonth.sales - cost(lastMonthSales)
 
         setStats({
           today,
@@ -66,32 +75,55 @@ function Dashboard() {
   return (
     <div className='dashboard container'>
       {loading && <Loading />}
-      Dashboard
+      {/* Dashboard */}
       <div className='tiles_container'>
         <Card color='primary'>
-          <CardHeader title='Todays Sales' className='purple' />
+          <CardHeader title='Today' className='purple' />
           <CardContent>
             <div className='flex' style={{ alignItems: 'center' }}>
-              <span className='money'>{formatMoney(stats.today)}</span>
-              <TrendingUp />
+              <span className='key'>Sales</span>
+              <span className='money'>{formatMoney(stats.today.sales)}</span>
+              {/* <TrendingUp /> */}
+            </div>
+            <div className='flex' style={{ alignItems: 'center' }}>
+              <span className='key'>Profit</span>
+              <span className='money'>{formatMoney(stats.today.profit)}</span>
+              {/* <TrendingUp /> */}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader title='This Month Sales' className='green' />
+          <CardHeader title='This Month' className='green' />
           <CardContent>
             <div className='flex' style={{ alignItems: 'center' }}>
-              <span className='money'>{formatMoney(stats.thisMonth)}</span>
-              <TrendingUp />
+              <span className='key'>Sales</span>
+              <span className='money'>
+                {formatMoney(stats.thisMonth.sales)}
+              </span>
+              {/* <TrendingUp /> */}
+            </div>
+            <div className='flex'>
+              <span className='key'>Profit</span>
+              <span className='money'>
+                {formatMoney(stats.thisMonth.profit)}
+              </span>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader title='Last Month Sales' className='orange' />
+          <CardHeader title='Last Month' className='orange' />
           <CardContent>
             <div className='flex' style={{ alignItems: 'center' }}>
+              <span className='key'>Sales</span>
               <span className='money'>{formatMoney(stats.lastMonth)}</span>
-              <TrendingDown />
+              {/* <TrendingDown /> */}
+            </div>
+            <div className='flex' style={{ alignItems: 'center' }}>
+              <span className='key'>Profit</span>
+              <span className='money'>
+                {formatMoney(stats.lastMonth.profit)}
+              </span>
+              {/* <TrendingUp /> */}
             </div>
           </CardContent>
         </Card>

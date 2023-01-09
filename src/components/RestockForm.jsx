@@ -1,18 +1,14 @@
 import React, { useState } from 'react'
-import '../css/LoginForm.css'
-import { Engineering, Money } from '@mui/icons-material'
+import { Numbers, Money } from '@mui/icons-material'
 import db from '../firebase/firebaseInit'
 import { useStateValue } from '../StateProvider'
 
-function EngineForm({ engine, close }) {
-  const [details, setDetails] = useState(
-    engine || {
-      name: '',
-      costPrice: 0,
-      quantity: 0,
-      basePrice: 0,
-    }
-  )
+function RestockForm({ engine, close }) {
+  const [details, setDetails] = useState({
+    quantity: 0,
+    costPrice: engine.costPrice,
+    basePrice: engine.basePrice,
+  })
   const [loading, setLoading] = useState(false)
   const dispatch = useStateValue()[1]
 
@@ -25,18 +21,19 @@ function EngineForm({ engine, close }) {
     e.preventDefault()
     setLoading(true)
     try {
-      if (engine) {
-        // Edit
-        const updatedE = await db.updateOne('engines', details)
-        dispatch({ type: 'UPDATE_ENGINE', data: updatedE })
-      } else {
-        // Add
-        const newE = await db.createOne('engines', details)
-        dispatch({ type: 'ADD_ENGINE', data: newE })
+      const data = {
+        ...engine,
+        ...details,
+        quantity: Number(details.quantity) + Number(engine.quantity),
+        lastOrderDate: new Date(),
       }
+      const updatedE = await db.updateOne('engines', data)
+      dispatch({ type: 'UPDATE_ENGINE', data: updatedE })
       setLoading(false)
       close()
-    } catch (error) {}
+    } catch (error) {
+      alert('something went wrong!')
+    }
   }
 
   return (
@@ -47,28 +44,31 @@ function EngineForm({ engine, close }) {
       onSubmit={handleSubmit}
     >
       <div className='input flex flex-column'>
-        <label htmlFor='name'>
-          <Engineering />
-          Engine Name
+        <label htmlFor='quantity'>
+          <Numbers />
+          Quantity
         </label>
         <input
-          type='text'
-          id='name'
+          type='number'
           required
-          name='name'
-          value={details.name}
+          min={1}
+          id='quantity'
+          name='quantity'
+          value={details.quantity}
           onChange={handleChange}
         />
       </div>
       <div className='input flex flex-column'>
-        <label htmlFor='basePrice'>
+        <label htmlFor='costPrice'>
           <Money />
           Cost Price
         </label>
         <input
           type='number'
+          step={0.01}
           min={100}
           id='costPrice'
+          required
           name='costPrice'
           value={details.costPrice}
           onChange={handleChange}
@@ -77,38 +77,29 @@ function EngineForm({ engine, close }) {
       <div className='input flex flex-column'>
         <label htmlFor='basePrice'>
           <Money />
-          Base Price
+          Selling Price
         </label>
         <input
           type='number'
           min={100}
           id='basePrice'
           name='basePrice'
+          step={0.01}
           value={details.basePrice}
           onChange={handleChange}
         />
       </div>
 
       <div className='flex'>
-        <button className='button orange' onClick={() => close()}>
+        <button className='button orange' disabled={loading} onClick={close}>
           Cancel
         </button>
-        <button
-          className='button purple'
-          type='submit'
-          disable={loading.toString()}
-        >
-          {loading
-            ? engine
-              ? 'Saving...'
-              : 'Adding...'
-            : engine
-            ? 'Save'
-            : 'Add'}
+        <button className='button purple' type='submit' disabled={loading}>
+          {loading ? 'Saving...' : 'Save'}
         </button>
       </div>
     </form>
   )
 }
 
-export default EngineForm
+export default RestockForm

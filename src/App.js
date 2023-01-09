@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 import Profile from './pages/Profile'
 import ReportsPreview from './pages/ReportsPreview'
+import EngineDetail from './pages/EngineDetail'
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path='dashboard' element={<Dashboard />} />
               <Route path='products' element={<Products />} />
+              <Route path='products/:engineId' element={<EngineDetail />} />
               <Route path='reports' element={<Reports />} />
               <Route path='reports/preview' element={<ReportsPreview />} />
               <Route path='users' element={<Users />} />

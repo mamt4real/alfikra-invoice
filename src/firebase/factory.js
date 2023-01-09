@@ -82,7 +82,10 @@ export const monthlySales = (transformed) => {
     const val = monthlyGroups.hasOwnProperty(month) ? monthlyGroups[month] : []
     temp.push({
       name: month,
-      amt: val.reduce((subtotal, sale) => subtotal + sale.total, 0),
+      amt:
+        Math.round(
+          val.reduce((subtotal, sale) => subtotal + sale.total, 0) * 100
+        ) / 100,
     })
   }
   return temp
@@ -108,7 +111,7 @@ export const salesByUser = (transformed, users) => {
     temp.push({
       userID: key,
       amt: val.reduce((subtotal, sale) => subtotal + sale.total, 0),
-      name: users?.find((u) => u.id == key)?.name,
+      name: users?.find((u) => u.id === key)?.name,
     })
   }
   return temp
