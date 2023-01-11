@@ -65,6 +65,21 @@ function InvoicePage() {
 
   const handlePrint = (e) => {
     setShowRceipt(true)
+    if (!currentInvoice.printed) {
+      // update quantities reduction
+      // update status to printed
+      db.updateQuantities(currentInvoice.invoiceItemList)
+        .then(() => {
+          db.updateOne('invoices', {
+            ...currentInvoice,
+            printed: true,
+            invoicePaid: true,
+          })
+            .then((data) => dispatch({ type: 'SET_CURRENT_INVOICE', data }))
+            .catch(console.log)
+        })
+        .catch(console.log)
+    }
   }
 
   if (!currentInvoice) return <div></div>

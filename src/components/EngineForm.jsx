@@ -7,7 +7,7 @@ import { useStateValue } from '../StateProvider'
 function EngineForm({ engine, close }) {
   const [details, setDetails] = useState(
     engine || {
-      name: '',
+      name: '', // it has be unique
       costPrice: 0,
       quantity: 0,
       basePrice: 0,
@@ -31,6 +31,11 @@ function EngineForm({ engine, close }) {
         dispatch({ type: 'UPDATE_ENGINE', data: updatedE })
       } else {
         // Add
+        // confirm if engine name is unique
+        if (await db.engineExists(details.name)) {
+          alert(`${details.name} already exist!`)
+          return
+        }
         const newE = await db.createOne('engines', details)
         dispatch({ type: 'ADD_ENGINE', data: newE })
       }

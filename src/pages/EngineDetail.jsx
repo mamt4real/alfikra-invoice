@@ -88,7 +88,7 @@ function EngineDetail() {
           <span className='key'>
             <CalendarMonth /> Last Order Date
           </span>
-          <span className='value'>{formatdate(new Date())}</span>
+          <span className='value'>{formatdate(engine?.lastOrderDate)}</span>
         </div>
       </section>
       <section className='actions'>

@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth'
 import {
   getFirestore,
+  increment,
   collection,
   getDocs,
   getDoc,
@@ -207,6 +208,31 @@ const deleteOne = async (colname, id) => {
   await deleteDoc(docRef)
 }
 
+const engineExists = async (engineName) => {
+  const q = query(collection(db, 'engines'), where('name', '==', engineName))
+  const found = await getDoc(q)
+  return found.exists()
+}
+
+/**
+ * Update quantities of engines after an invoice is paid
+ * @param {[any]} items list of items bought
+ */
+
+const updateQuantities = async (items) => {
+  const updates = []
+
+  items.forEach((item) => {
+    const q = query(
+      collection(db, 'engines'),
+      where('name', '==', item.itemName)
+    )
+    const update = { quantity: increment(-Number(item.qty)) }
+    updates.push(updateDoc(q, update))
+  })
+  await Promise.all(updates)
+}
+
 const createUser = async (email, password, name, role) => {
   if (devEnv) {
     const newUser = {
@@ -322,6 +348,8 @@ const exports = {
   updateOne,
   signIn,
   logOut,
+  engineExists,
+  updateQuantities,
   createUser,
   getThisYearInvoices,
   getTodaysSales,
