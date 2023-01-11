@@ -61,20 +61,31 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
   const handleItemChange = (e, index) => {
     const { name, value } = e.target
     const newInvoice = { ...invoice }
-    newInvoice.invoiceItemList[index][name] = value
+    const { invoiceItemList: items } = newInvoice
+    items[index][name] = value
 
     if (name === 'itemName') {
       const engine = engines.find((e) => e.name === value)
       if (engine) {
-        newInvoice.invoiceItemList[index]['price'] = engine.basePrice
-        newInvoice.invoiceItemList[index]['cost'] = engine.costPrice
+        items[index]['price'] = engine.basePrice
+        items[index]['cost'] = engine.costPrice
+      }
+    }
+
+    if (name === 'qty') {
+      const engine = engines.find((e) => e.name === items[index].itemName)
+      const qtys = items
+        .filter((it) => it.itemName === engine.name)
+        .reduce((sub, it) => sub + it.qty, 0)
+      if (qtys > engine.quantity) {
+        items[index].qty = 0
       }
     }
 
     if (['price', 'qty', 'itemName'].includes(name)) {
-      const { qty, price } = newInvoice.invoiceItemList[index]
-      newInvoice.invoiceItemList[index]['total'] = qty * price
-      newInvoice.invoiceTotal = newInvoice.invoiceItemList.reduce(
+      const { qty, price } = items[index]
+      items[index]['total'] = qty * price
+      newInvoice.invoiceTotal = items.reduce(
         (total, item) => total + item.qty * item.price,
         0
       )
@@ -96,6 +107,7 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
       alert('Please make sure you fill in the items')
       return
     }
+
     setSubmitting(true)
     const fn = currentInvoice ? db.updateOne : db.createOne
     try {
@@ -200,11 +212,13 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
                         onChange={(e) => handleItemChange(e, i)}
                       >
                         <option value=''>Select Engine</option>
-                        {engines.map((e, i) => (
-                          <option value={e.name} key={i + 1}>
-                            {e.name}
-                          </option>
-                        ))}
+                        {engines
+                          .filter((e) => e.quantity)
+                          .map((e, i) => (
+                            <option value={e.name} key={i + 1}>
+                              {e.name}
+                            </option>
+                          ))}
                       </select>
                     </td>
                     <td className='price engineNo'>
@@ -220,7 +234,7 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
                         type='number'
                         value={item.qty}
                         name={'qty'}
-                        min={1}
+                        min={0}
                         onChange={(e) => handleItemChange(e, i)}
                       />
                     </td>

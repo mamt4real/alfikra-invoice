@@ -184,12 +184,10 @@ const updateOne = async (colname, docData) => {
         data = []
     }
     const index = data.findIndex((x) => x.id === docData.id)
-    console.log(index)
     if (index > -1) {
       data[index] = { ...data[index], ...docData }
       return data[index]
     }
-    console.log(index)
     return
   }
   const docRef = doc(db, colname, docData.id)
@@ -220,8 +218,17 @@ const engineExists = async (engineName) => {
  */
 
 const updateQuantities = async (items) => {
-  const updates = []
+  if (devEnv) {
+    items.forEach((it) => {
+      const e = engines.find((e) => e.name === it.itemName)
+      if (e) {
+        e.quantity -= it.qty
+      }
+    })
+    return
+  }
 
+  const updates = []
   items.forEach((item) => {
     const q = query(
       collection(db, 'engines'),

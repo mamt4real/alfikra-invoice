@@ -15,7 +15,7 @@ import Popup from '../components/Popup'
 import useReceipt from '../hooks/useReceipt'
 
 function InvoicePage() {
-  const params = useParams()
+  const { invoiceID } = useParams()
   const navigate = useNavigate()
   const [{ currentInvoice, user }, dispatch] = useStateValue()
 
@@ -30,9 +30,9 @@ function InvoicePage() {
   )
 
   useEffect(() => {
-    dispatch({ type: 'SET_CURRENT_INVOICE', data: params.invoiceID })
+    dispatch({ type: 'SET_CURRENT_INVOICE', data: invoiceID })
     return () => dispatch({ type: 'SET_CURRENT_INVOICE', data: null })
-  }, [dispatch, params.invoiceID])
+  }, [invoiceID])
 
   const toggleInvoiceEdit = (id) => {
     fn(true)
@@ -75,7 +75,9 @@ function InvoicePage() {
             printed: true,
             invoicePaid: true,
           })
-            .then((data) => dispatch({ type: 'SET_CURRENT_INVOICE', data }))
+            .then(({ id: data }) =>
+              dispatch({ type: 'SET_CURRENT_INVOICE', data })
+            )
             .catch(console.log)
         })
         .catch(console.log)
