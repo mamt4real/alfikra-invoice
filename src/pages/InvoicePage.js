@@ -18,15 +18,49 @@ function InvoicePage() {
   const { invoiceID } = useParams()
   const navigate = useNavigate()
   const [{ currentInvoice, user }, dispatch] = useStateValue()
-
   const [showReceipt, setShowRceipt] = useState(false)
-
   const [submitting, setSubmitting] = useState(false)
-
   const [fn, setShowModal] = useOutletContext()
 
-  const [Receipt, ActionsTab] = useReceipt(currentInvoice, () =>
-    setShowRceipt(false)
+  const printCallback = () => {
+    if (!currentInvoice.printed) {
+      // update quantities reduction
+      db.updateQuantities(currentInvoice.invoiceItemList)
+        .then(() => {
+          // update status to printed
+          db.updateOne('invoices', {
+            ...currentInvoice,
+            printed: true,
+            invoicePending: false,
+            invoiceDraft: false,
+            invoicePaid: true,
+          })
+            .then((updated) => {
+              dispatch({
+                type: 'UPDATE_INVOICE',
+                data: {
+                  ...currentInvoice,
+                  printed: true,
+                  invoicePending: false,
+                  invoiceDraft: false,
+                  invoicePaid: true,
+                },
+              })
+              dispatch({
+                type: 'SET_CURRENT_INVOICE',
+                data: updated ? updated?.id : currentInvoice.id,
+              })
+            })
+            .catch(console.log)
+        })
+        .catch(console.log)
+    }
+  }
+
+  const [Receipt, ActionsTab] = useReceipt(
+    currentInvoice,
+    () => setShowRceipt(false),
+    printCallback
   )
 
   useEffect(() => {
@@ -65,23 +99,6 @@ function InvoicePage() {
 
   const handlePrint = (e) => {
     setShowRceipt(true)
-    if (!currentInvoice.printed) {
-      // update quantities reduction
-      // update status to printed
-      db.updateQuantities(currentInvoice.invoiceItemList)
-        .then(() => {
-          db.updateOne('invoices', {
-            ...currentInvoice,
-            printed: true,
-            invoicePaid: true,
-          })
-            .then(({ id: data }) =>
-              dispatch({ type: 'SET_CURRENT_INVOICE', data })
-            )
-            .catch(console.log)
-        })
-        .catch(console.log)
-    }
   }
 
   if (!currentInvoice) return <div></div>
@@ -203,7 +220,7 @@ function InvoicePage() {
           </div>
         </div>
       </div>
-      <Popup title='Add/Edit User' open={showReceipt} setOpen={setShowRceipt}>
+      <Popup title='Receipt' open={showReceipt} setOpen={setShowRceipt}>
         <div className='receipt'>
           <Receipt />
           <ActionsTab />

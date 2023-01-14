@@ -78,7 +78,11 @@ function Dashboard() {
       {/* Dashboard */}
       <div className='tiles_container'>
         <Card color='primary'>
-          <CardHeader title='Today' className='purple' />
+          <CardHeader
+            title='Today'
+            className='purple'
+            sx={{ p: { lg: 1.2, xs: 0.8 } }}
+          />
           <CardContent>
             <div className='flex' style={{ alignItems: 'center' }}>
               <span className='key'>Sales</span>
@@ -93,7 +97,11 @@ function Dashboard() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader title='This Month' className='green' />
+          <CardHeader
+            sx={{ p: { lg: 1.2, xs: 0.8 } }}
+            title='This Month'
+            className='green'
+          />
           <CardContent>
             <div className='flex' style={{ alignItems: 'center' }}>
               <span className='key'>Sales</span>
@@ -111,7 +119,11 @@ function Dashboard() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader title='Last Month' className='orange' />
+          <CardHeader
+            sx={{ p: { lg: 1.2, xs: 0.8 } }}
+            title='Last Month'
+            className='orange'
+          />
           <CardContent>
             <div className='flex' style={{ alignItems: 'center' }}>
               <span className='key'>Sales</span>

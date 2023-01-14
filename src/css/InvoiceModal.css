@@ -12,7 +12,7 @@
 
 .invoice-wrap .invoice-content {
   position: relative;
-  padding: 25px;
+  padding: 20px;
   max-width: 650px;
   width: 100%;
   background-color: #141625;
@@ -70,7 +70,7 @@
 
 .invoice-content .bill-to,
 .invoice-content .bill-from {
-  margin-bottom: 48px;
+  margin-bottom: 28px;
 }
 .invoice-content .form__row {
   gap: 16px;
@@ -163,7 +163,7 @@
 }
 
 .invoice-content .save {
-  margin-top: 60px;
+  margin-top: 20px;
 }
 
 .invoice-content .save div {
