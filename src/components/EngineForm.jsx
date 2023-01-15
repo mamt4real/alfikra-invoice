@@ -34,6 +34,7 @@ function EngineForm({ engine, close }) {
         // confirm if engine name is unique
         if (await db.engineExists(details.name)) {
           alert(`${details.name} already exist!`)
+          setLoading(false)
           return
         }
         const newE = await db.createOne('engines', details)
@@ -41,7 +42,10 @@ function EngineForm({ engine, close }) {
       }
       setLoading(false)
       close()
-    } catch (error) {}
+    } catch (error) {
+      setLoading(false)
+      console.error(error.message)
+    }
   }
 
   return (
@@ -95,7 +99,7 @@ function EngineForm({ engine, close }) {
       </div>
 
       <div className='flex'>
-        <button className='button orange' onClick={() => close()}>
+        <button type='reset' className='button orange' onClick={() => close()}>
           Cancel
         </button>
         <button

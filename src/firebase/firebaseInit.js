@@ -47,7 +47,7 @@ const firebaseApp = initializeApp(firebaseConfig)
 const db = getFirestore(firebaseApp)
 const auth = getAuth(firebaseApp)
 
-const devEnv = true
+const devEnv = false
 
 const getAll = async (colname) => {
   if (devEnv) {
@@ -207,9 +207,12 @@ const deleteOne = async (colname, id) => {
 }
 
 const engineExists = async (engineName) => {
+  if (devEnv) {
+    return engines.find((e) => e.name === engineName)
+  }
   const q = query(collection(db, 'engines'), where('name', '==', engineName))
-  const found = await getDoc(q)
-  return found.exists()
+  const found = await getDocs(q)
+  return found.size
 }
 
 /**
@@ -311,7 +314,7 @@ const signIn = async (email, password) => {
     }
   } catch (err) {
     console.log(err.message)
-    return [null, `${err.code}: ${err.message}`]
+    return [null, err.code]
   }
 }
 
