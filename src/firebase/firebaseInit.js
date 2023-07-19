@@ -47,7 +47,7 @@ const firebaseApp = initializeApp(firebaseConfig)
 const db = getFirestore(firebaseApp)
 const auth = getAuth(firebaseApp)
 
-const devEnv = false
+const devEnv = true
 
 const getAll = async (colname) => {
   if (devEnv) {

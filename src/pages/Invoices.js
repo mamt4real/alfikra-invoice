@@ -92,10 +92,6 @@ function Invoices() {
       </div>
       <div className='searchbar'>
         <div className='input flex flex-column'>
-          {/* <label htmlFor='Phone'>
-            <Phone />
-            Search Invoice by Phone No
-          </label> */}
           <input
             type='Phone'
             id='Phone'

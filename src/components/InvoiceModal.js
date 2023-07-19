@@ -1,5 +1,5 @@
 import React, { useState, forwardRef } from 'react'
-// import deleteIcon from '../assets/icon-delete.svg'
+import deleteIcon from '../assets/icon-delete.svg'
 import plusIcon from '../assets/icon-plus.svg'
 import '../css/InvoiceModal.css'
 import db from '../firebase/firebaseInit'
@@ -46,18 +46,18 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
   }
   const addNewItem = () => {
     return
-    // const emptyItem = {
-    //   itemName: '',
-    //   qty: 1,
-    //   price: 0,
-    //   total: 0,
-    //   cost: 0,
-    //   engineNo: '',
-    // }
-    // setInvoice({
-    //   ...invoice,
-    //   invoiceItemList: [...invoice.invoiceItemList, emptyItem],
-    // })
+    const emptyItem = {
+      itemName: '',
+      qty: 1,
+      price: 0,
+      total: 0,
+      cost: 0,
+      engineNo: '',
+    }
+    setInvoice({
+      ...invoice,
+      invoiceItemList: [...invoice.invoiceItemList, emptyItem],
+    })
   }
   const handleItemChange = (e, index) => {
     const { name, value } = e.target
@@ -94,12 +94,12 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
 
     setInvoice(newInvoice)
   }
-  // const handleDeleteItem = (index) => {
-  //   //do something
-  //   const newInvoice = { ...invoice }
-  //   newInvoice.invoiceItemList.splice(index, 1)
-  //   setInvoice(newInvoice)
-  // }
+  const handleDeleteItem = (index) => {
+    //do something
+    const newInvoice = { ...invoice }
+    newInvoice.invoiceItemList.splice(index, 1)
+    setInvoice(newInvoice)
+  }
   const checkClick = (e) => {
     if (e.target.id === 'invoice-wrap') showModal()
   }
@@ -236,7 +236,6 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
                         value={item.qty}
                         name={'qty'}
                         min={0}
-                        max={1}
                         onChange={(e) => handleItemChange(e, i)}
                       />
                     </td>
@@ -251,7 +250,7 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
                     <td className='total'>
                       {formatMoney(item.qty * item.price)}
                     </td>
-                    {/* <td className='qty delete'>
+                    <td className='qty delete'>
                       {!!i && (
                         <img
                           src={deleteIcon}
@@ -259,7 +258,7 @@ const InvoiceModal = forwardRef(({ closeFunction, showModal }, ref) => {
                           alt=''
                         />
                       )}
-                    </td> */}
+                    </td>
                   </tr>
                 ))}
               </tbody>
